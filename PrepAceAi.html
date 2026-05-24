@@ -1,0 +1,2583 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduViet - Nền Tảng Học Tập Thông Minh</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0f4c81;
+    --primary-light: #1a6db5;
+    --accent: #f97316;
+    --accent2: #22d3ee;
+    --gold: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --purple: #8b5cf6;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface2: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+    --sidebar-w: 260px;
+    --header-h: 64px;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+  a { text-decoration: none; color: inherit; }
+  button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+  input, textarea, select { font-family: inherit; outline: none; border: none; }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface2); }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  /* ===== TOAST ===== */
+  #toast { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast-item { padding: 12px 18px; border-radius: 8px; color: #fff; font-weight: 600; font-size: .85rem; background: var(--primary); box-shadow: var(--shadow-lg); animation: slideIn .3s ease; display: flex; align-items: center; gap: 8px; }
+  .toast-item.success { background: var(--success); }
+  .toast-item.error { background: var(--danger); }
+  @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ===== MODAL ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); animation: fadeIn .2s ease; }
+  .modal { background: var(--surface); border-radius: 16px; padding: 32px; width: min(560px, 95vw); max-height: 90vh; overflow-y: auto; position: relative; box-shadow: var(--shadow-lg); animation: scaleIn .25s ease; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .modal-title { font-size: 1.25rem; font-weight: 800; }
+  .modal-close { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; color: var(--text2); transition: all .2s; }
+  .modal-close:hover { background: var(--border); color: var(--text); }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* ===== FORMS ===== */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 6px; color: var(--text2); }
+  .form-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: .9rem; background: var(--surface); color: var(--text); transition: border-color .2s; }
+  .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,76,129,.1); }
+  .form-select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: .9rem; background: var(--surface); color: var(--text); appearance: none; cursor: pointer; }
+  .form-textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: .9rem; background: var(--surface); color: var(--text); min-height: 100px; resize: vertical; transition: border-color .2s; }
+  .form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15,76,129,.1); }
+
+  /* ===== BUTTONS ===== */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border-radius: 8px; font-weight: 600; font-size: .9rem; transition: all .2s; cursor: pointer; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15,76,129,.3); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { background: #ea6c05; transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+  .btn-outline:hover { background: var(--primary); color: #fff; }
+  .btn-ghost { background: var(--surface2); color: var(--text2); }
+  .btn-ghost:hover { background: var(--border); color: var(--text); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-sm { padding: 6px 14px; font-size: .82rem; }
+  .btn-lg { padding: 13px 28px; font-size: 1rem; }
+  .btn-block { width: 100%; justify-content: center; }
+  .btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; align-items: center; border-radius: 8px; }
+
+  /* ===== LANDING / GUEST PAGE ===== */
+  #page-guest { display: block; }
+  #page-app { display: none; }
+
+  .landing-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); height: var(--header-h); display: flex; align-items: center; padding: 0 40px; gap: 32px; }
+  .landing-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .landing-logo span { color: var(--accent); }
+  .landing-nav-links { display: flex; gap: 24px; margin-left: auto; }
+  .landing-nav-links a { font-weight: 500; font-size: .9rem; color: var(--text2); transition: color .2s; }
+  .landing-nav-links a:hover { color: var(--primary); }
+  .landing-nav-actions { display: flex; gap: 10px; }
+
+  .hero { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #0f4c81 50%, #1a6db5 100%); display: flex; align-items: center; padding: 80px 40px 40px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .hero-content { max-width: 640px; color: #fff; position: relative; z-index: 1; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(249,115,22,.2); border: 1px solid rgba(249,115,22,.4); color: #fed7aa; padding: 6px 14px; border-radius: 100px; font-size: .82rem; font-weight: 600; margin-bottom: 24px; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.15; font-weight: 900; margin-bottom: 20px; }
+  .hero h1 .highlight { color: var(--accent); }
+  .hero p { font-size: 1.05rem; line-height: 1.7; color: rgba(255,255,255,.75); margin-bottom: 32px; max-width: 520px; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-stats { display: flex; gap: 40px; margin-top: 48px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,.15); }
+  .hero-stat-num { font-size: 1.8rem; font-weight: 800; }
+  .hero-stat-label { font-size: .82rem; color: rgba(255,255,255,.6); }
+  .hero-visual { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); width: min(480px, 42vw); }
+
+  .section { padding: 80px 40px; }
+  .section-header { text-align: center; margin-bottom: 48px; }
+  .section-tag { display: inline-block; background: rgba(15,76,129,.1); color: var(--primary); padding: 4px 14px; border-radius: 100px; font-size: .8rem; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; margin-bottom: 12px; }
+  .section-sub { color: var(--text2); font-size: .95rem; max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
+  .feature-card { background: var(--surface); border-radius: var(--radius); padding: 28px; border: 1px solid var(--border); transition: all .3s; cursor: default; }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+  .feature-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 16px; }
+  .feature-title { font-weight: 700; margin-bottom: 8px; }
+  .feature-desc { font-size: .88rem; color: var(--text2); line-height: 1.6; }
+
+  .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
+  .course-card { background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); transition: all .3s; }
+  .course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .course-thumb { height: 180px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+  .course-badge { position: absolute; top: 12px; left: 12px; padding: 3px 10px; border-radius: 6px; font-size: .75rem; font-weight: 700; }
+  .course-body { padding: 20px; }
+  .course-subject { font-size: .78rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .course-name { font-weight: 700; font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
+  .course-meta { display: flex; align-items: center; gap: 12px; font-size: .8rem; color: var(--text3); margin-bottom: 12px; }
+  .course-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border); }
+  .course-price { font-weight: 800; color: var(--accent); font-size: 1.05rem; }
+  .course-price.free { color: var(--success); }
+
+  .instructors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto; }
+  .instructor-card { background: var(--surface); border-radius: var(--radius); padding: 24px; text-align: center; border: 1px solid var(--border); transition: all .3s; }
+  .instructor-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .instructor-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; background: linear-gradient(135deg, var(--primary), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid var(--surface2); }
+  .instructor-name { font-weight: 700; margin-bottom: 4px; }
+  .instructor-subject { font-size: .82rem; color: var(--primary); font-weight: 600; }
+  .instructor-rating { font-size: .82rem; color: var(--text3); margin-top: 8px; }
+
+  .landing-footer { background: #0f172a; color: rgba(255,255,255,.6); padding: 60px 40px 30px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto 40px; }
+  .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 12px; }
+  .footer-desc { font-size: .88rem; line-height: 1.7; margin-bottom: 20px; }
+  .footer-col-title { font-weight: 700; color: #fff; margin-bottom: 16px; font-size: .9rem; }
+  .footer-links { display: flex; flex-direction: column; gap: 8px; }
+  .footer-links a { font-size: .85rem; transition: color .2s; }
+  .footer-links a:hover { color: #fff; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px; text-align: center; font-size: .82rem; max-width: 1200px; margin: 0 auto; }
+
+  /* ===== APP LAYOUT ===== */
+  .app-layout { display: flex; height: 100vh; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); background: var(--primary); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+  .sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .sidebar-logo-text { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; color: #fff; }
+  .sidebar-logo-sub { font-size: .72rem; color: rgba(255,255,255,.5); margin-top: 2px; }
+  .sidebar-user { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: 12px; }
+  .sidebar-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .sidebar-user-name { font-weight: 700; font-size: .9rem; color: #fff; }
+  .sidebar-user-role { font-size: .75rem; color: rgba(255,255,255,.55); }
+  .sidebar-nav { padding: 12px 12px; flex: 1; }
+  .sidebar-section-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.4); padding: 12px 8px 6px; }
+  .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; color: rgba(255,255,255,.7); font-size: .88rem; font-weight: 500; cursor: pointer; transition: all .2s; margin-bottom: 2px; }
+  .sidebar-item:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .sidebar-item.active { background: rgba(255,255,255,.15); color: #fff; font-weight: 700; }
+  .sidebar-item .badge { margin-left: auto; background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 6px; border-radius: 100px; font-weight: 700; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid rgba(255,255,255,.1); }
+
+  /* MAIN */
+  .main-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .main-header { height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; flex-shrink: 0; position: sticky; top: 0; z-index: 50; }
+  .main-header-title { font-weight: 800; font-size: 1.1rem; }
+  .main-header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .notif-btn { position: relative; width: 36px; height: 36px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--surface); }
+  .search-bar { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 12px; min-width: 240px; }
+  .search-bar input { background: transparent; font-size: .88rem; color: var(--text); flex: 1; }
+  .search-bar input::placeholder { color: var(--text3); }
+
+  .main-content { flex: 1; padding: 28px; }
+
+  /* ===== DASHBOARD ===== */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+  .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 12px; }
+  .stat-label { font-size: .8rem; color: var(--text2); margin-bottom: 4px; font-weight: 500; }
+  .stat-value { font-size: 1.6rem; font-weight: 800; }
+  .stat-change { font-size: .78rem; margin-top: 4px; }
+  .stat-change.up { color: var(--success); }
+  .stat-change.down { color: var(--danger); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-weight: 700; font-size: .95rem; }
+  .card-body { padding: 20px; }
+
+  /* PROGRESS */
+  .progress-bar { height: 8px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--primary), var(--accent2)); transition: width .5s ease; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+  thead th { padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text2); background: var(--surface2); border-bottom: 1px solid var(--border); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  /* BADGE */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: .75rem; font-weight: 700; }
+  .badge-blue { background: rgba(15,76,129,.1); color: var(--primary); }
+  .badge-green { background: rgba(16,185,129,.1); color: var(--success); }
+  .badge-orange { background: rgba(249,115,22,.1); color: var(--accent); }
+  .badge-red { background: rgba(239,68,68,.1); color: var(--danger); }
+  .badge-purple { background: rgba(139,92,246,.1); color: var(--purple); }
+
+  /* COURSE ITEMS */
+  .course-list-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .course-list-item:last-child { border-bottom: none; }
+  .course-list-thumb { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
+  .course-list-name { font-weight: 700; font-size: .9rem; }
+  .course-list-meta { font-size: .78rem; color: var(--text3); }
+  .course-list-right { margin-left: auto; text-align: right; }
+
+  /* VIDEO PLAYER */
+  .video-player { background: #000; border-radius: var(--radius); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; color: #fff; position: relative; overflow: hidden; }
+  .video-controls { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(0,0,0,.8), transparent); padding: 16px 16px 12px; }
+  .video-progress { width: 100%; height: 4px; border-radius: 2px; background: rgba(255,255,255,.3); cursor: pointer; margin-bottom: 8px; }
+  .video-progress-fill { height: 100%; border-radius: 2px; background: var(--accent); width: 35%; }
+  .video-actions { display: flex; align-items: center; gap: 12px; color: #fff; font-size: .82rem; }
+  .video-btn { background: none; color: #fff; font-size: 1rem; padding: 4px; cursor: pointer; }
+
+  /* QUIZ */
+  .quiz-question { font-weight: 700; font-size: 1rem; margin-bottom: 16px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: all .2s; font-size: .9rem; display: flex; align-items: center; gap: 10px; }
+  .quiz-option:hover { border-color: var(--primary); background: rgba(15,76,129,.05); }
+  .quiz-option.selected { border-color: var(--primary); background: rgba(15,76,129,.08); font-weight: 600; }
+  .quiz-option.correct { border-color: var(--success); background: rgba(16,185,129,.1); color: var(--success); font-weight: 600; }
+  .quiz-option.wrong { border-color: var(--danger); background: rgba(239,68,68,.1); color: var(--danger); }
+  .quiz-opt-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+
+  /* ROADMAP */
+  .roadmap-track { position: relative; padding-left: 28px; }
+  .roadmap-track::before { content: ''; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+  .roadmap-item { position: relative; padding: 0 0 24px; }
+  .roadmap-dot { position: absolute; left: -22px; top: 3px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: .6rem; }
+  .roadmap-item.done .roadmap-dot { border-color: var(--success); background: var(--success); color: #fff; }
+  .roadmap-item.active .roadmap-dot { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .roadmap-item-title { font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+  .roadmap-item-desc { font-size: .82rem; color: var(--text2); }
+
+  /* NOTIFICATIONS */
+  .notif-panel { position: fixed; top: 64px; right: 16px; width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-lg); z-index: 200; display: none; max-height: 480px; overflow-y: auto; }
+  .notif-panel.open { display: block; }
+  .notif-panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: .9rem; }
+  .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; cursor: pointer; transition: background .2s; }
+  .notif-item:hover { background: var(--bg); }
+  .notif-item.unread { background: rgba(15,76,129,.04); }
+  .notif-item-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .notif-item-title { font-weight: 600; font-size: .85rem; margin-bottom: 3px; }
+  .notif-item-time { font-size: .75rem; color: var(--text3); }
+
+  /* AI CHAT */
+  .ai-chat-panel { display: flex; flex-direction: column; height: calc(100vh - var(--header-h) - 56px); }
+  .ai-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .ai-msg { display: flex; gap: 10px; max-width: 80%; }
+  .ai-msg.user { flex-direction: row-reverse; align-self: flex-end; }
+  .ai-msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+  .ai-msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: .88rem; line-height: 1.6; }
+  .ai-msg.ai .ai-msg-bubble { background: var(--surface2); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .ai-msg.user .ai-msg-bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+  .ai-input-area { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .ai-input { flex: 1; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: .88rem; }
+
+  /* EXAM SCHEDULE */
+  .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .schedule-day-header { text-align: center; font-size: .72rem; font-weight: 700; color: var(--text3); padding: 6px; text-transform: uppercase; }
+  .schedule-cell { min-height: 80px; border: 1px solid var(--border); border-radius: 4px; padding: 6px; background: var(--surface); }
+  .schedule-cell.today { background: rgba(15,76,129,.05); border-color: var(--primary); }
+  .schedule-cell-date { font-size: .8rem; font-weight: 700; margin-bottom: 4px; }
+  .schedule-event { background: var(--primary); color: #fff; font-size: .68rem; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; }
+
+  /* UPLOAD */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all .2s; }
+  .upload-zone:hover { border-color: var(--primary); background: rgba(15,76,129,.03); }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+  /* PERFORMANCE CHART (CSS-only bar chart) */
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-bottom: 24px; position: relative; border-bottom: 1px solid var(--border); }
+  .bar-chart::before { content: ''; position: absolute; bottom: 24px; left: 0; right: 0; height: 1px; background: var(--border); }
+  .bar { flex: 1; border-radius: 4px 4px 0 0; position: relative; transition: height .6s ease; min-width: 24px; }
+  .bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: .68rem; color: var(--text3); white-space: nowrap; font-weight: 500; }
+  .bar-value { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: .72rem; font-weight: 700; white-space: nowrap; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--surface2); padding: 4px; border-radius: 10px; margin-bottom: 20px; }
+  .tab { flex: 1; padding: 8px 16px; border-radius: 7px; text-align: center; font-size: .85rem; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .2s; }
+  .tab.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+  /* RATING STARS */
+  .stars { color: var(--gold); letter-spacing: 2px; }
+
+  /* ENTRY TEST */
+  .entry-step { display: none; }
+  .entry-step.active { display: block; }
+  .entry-progress { display: flex; gap: 8px; margin-bottom: 24px; }
+  .entry-prog-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
+  .entry-prog-dot.done { background: var(--primary); }
+  .entry-prog-dot.active { background: var(--accent); }
+
+  /* MISC */
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px; background: var(--surface2); border: 1px solid var(--border); font-size: .78rem; font-weight: 500; }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .text-sm { font-size: .85rem; }
+  .text-xs { font-size: .78rem; }
+  .text-muted { color: var(--text2); }
+  .text-primary { color: var(--primary); }
+  .text-accent { color: var(--accent); }
+  .text-success { color: var(--success); }
+  .text-danger { color: var(--danger); }
+  .fw-bold { font-weight: 700; }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-24 { margin-bottom: 24px; }
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .gap-16 { gap: 16px; }
+  .flex-1 { flex: 1; }
+
+  /* ADMIN specific */
+  .admin-section { margin-bottom: 32px; }
+  .audit-log-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .85rem; }
+  .audit-time { color: var(--text3); font-size: .78rem; white-space: nowrap; }
+
+  /* TEACHER grading */
+  .essay-submission { background: var(--surface2); border-radius: 8px; padding: 16px; font-size: .88rem; line-height: 1.7; margin-bottom: 16px; border-left: 3px solid var(--primary); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar { width: 220px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .hero-visual { display: none; }
+  }
+  @media (max-width: 600px) {
+    .landing-nav { padding: 0 20px; }
+    .section { padding: 60px 20px; }
+    .hero { padding: 80px 20px 40px; }
+    .landing-nav-links { display: none; }
+    .sidebar { width: 200px; }
+    .main-content { padding: 16px; }
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-panel-header flex justify-between items-center">
+    <span>Thông báo</span>
+    <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Đánh dấu đã đọc</button>
+  </div>
+  <div id="notifList"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE: GUEST / LANDING                                        -->
+<!-- ============================================================ -->
+<div id="page-guest">
+  <!-- NAV -->
+  <nav class="landing-nav">
+    <div class="landing-logo">📚 Edu<span>Viet</span></div>
+    <div class="landing-nav-links">
+      <a href="#features" onclick="scrollTo('#features')">Tính năng</a>
+      <a href="#courses" onclick="event.preventDefault(); scrollToId('landing-courses')">Khóa học</a>
+      <a href="#instructors" onclick="event.preventDefault(); scrollToId('landing-instructors')">Giảng viên</a>
+      <a href="#" onclick="showModal('scheduleModal')">Lịch thi ĐH</a>
+      <a href="#" onclick="showModal('guideModal')">Hướng dẫn</a>
+    </div>
+    <div class="landing-nav-actions">
+      <button class="btn btn-ghost btn-sm" onclick="showModal('loginModal')">Đăng nhập</button>
+      <button class="btn btn-primary btn-sm" onclick="showModal('registerModal')">Đăng ký miễn phí</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🏆 Nền tảng #1 cho học sinh THPT Việt Nam</div>
+      <h1>Chinh phục kỳ thi<br>với <span class="highlight">EduViet</span></h1>
+      <p>Hệ thống học tập thông minh với AI, video bài giảng chất lượng cao, đề thi thử và lộ trình học cá nhân hóa cho mọi môn thi THPT Quốc Gia.</p>
+      <div class="hero-actions">
+        <button class="btn btn-accent btn-lg" onclick="showModal('registerModal')">🚀 Bắt đầu miễn phí</button>
+        <button class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,.4);color:#fff" onclick="showModal('loginModal')">Đăng nhập</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-num">50,000+</div><div class="hero-stat-label">Học sinh</div></div>
+        <div><div class="hero-stat-num">200+</div><div class="hero-stat-label">Khóa học</div></div>
+        <div><div class="hero-stat-num">500+</div><div class="hero-stat-label">Đề thi thử</div></div>
+        <div><div class="hero-stat-num">98%</div><div class="hero-stat-label">Hài lòng</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 20px 60px rgba(0,0,0,.4))">
+        <rect x="30" y="40" width="440" height="300" rx="16" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+        <rect x="30" y="40" width="440" height="48" rx="16" fill="rgba(255,255,255,.12)"/>
+        <circle cx="54" cy="64" r="8" fill="#ef4444" opacity=".8"/>
+        <circle cx="74" cy="64" r="8" fill="#f59e0b" opacity=".8"/>
+        <circle cx="94" cy="64" r="8" fill="#10b981" opacity=".8"/>
+        <text x="200" y="69" fill="rgba(255,255,255,.6)" font-size="12" text-anchor="middle" font-family="monospace">EduViet Learning Platform</text>
+        <rect x="50" y="108" width="160" height="200" rx="8" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+        <rect x="55" y="116" width="50" height="50" rx="6" fill="rgba(249,115,22,.4)"/>
+        <text x="80" y="148" fill="white" font-size="24" text-anchor="middle">📖</text>
+        <text x="130" y="135" fill="rgba(255,255,255,.9)" font-size="10" font-weight="700">Toán học</text>
+        <text x="130" y="150" fill="rgba(255,255,255,.5)" font-size="9">48 bài học</text>
+        <rect x="55" y="174" width="150" height="6" rx="3" fill="rgba(255,255,255,.1)"/>
+        <rect x="55" y="174" width="110" height="6" rx="3" fill="rgba(34,211,238,.6)"/>
+        <text x="55" y="196" fill="rgba(255,255,255,.5)" font-size="9">73% hoàn thành</text>
+        <rect x="230" y="108" width="220" height="90" rx="8" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)"/>
+        <text x="245" y="128" fill="rgba(255,255,255,.5)" font-size="9" font-weight="700">TIẾN ĐỘ TUẦN NÀY</text>
+        <rect x="245" y="138" width="30" height="44" rx="3" fill="rgba(15,76,129,.6)"/>
+        <rect x="280" y="152" width="30" height="30" rx="3" fill="rgba(249,115,22,.6)"/>
+        <rect x="315" y="144" width="30" height="38" rx="3" fill="rgba(34,211,238,.6)"/>
+        <rect x="350" y="136" width="30" height="46" rx="3" fill="rgba(15,76,129,.8)"/>
+        <rect x="385" y="148" width="30" height="34" rx="3" fill="rgba(249,115,22,.4)"/>
+        <rect x="230" y="214" width="220" height="78" rx="8" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.1)"/>
+        <text x="245" y="234" fill="rgba(255,255,255,.5)" font-size="9" font-weight="700">🤖 TRỢ LÝ AI</text>
+        <rect x="245" y="244" width="190" height="8" rx="4" fill="rgba(255,255,255,.08)"/>
+        <rect x="245" y="244" width="160" height="8" rx="4" fill="rgba(34,211,238,.3)"/>
+        <rect x="245" y="258" width="190" height="8" rx="4" fill="rgba(255,255,255,.08)"/>
+        <rect x="245" y="258" width="120" height="8" rx="4" fill="rgba(34,211,238,.3)"/>
+        <rect x="50" y="315" width="420" height="14" rx="7" fill="rgba(255,255,255,.05)"/>
+        <rect x="50" y="315" width="280" height="14" rx="7" fill="rgba(249,115,22,.4)"/>
+        <text x="345" y="325" fill="rgba(255,255,255,.5)" font-size="9">67% khoá học hoàn thành</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features" style="background:var(--surface)">
+    <div class="section-header">
+      <div class="section-tag">Tính năng nổi bật</div>
+      <div class="section-title">Mọi thứ bạn cần để đạt điểm cao</div>
+      <div class="section-sub">Hệ thống học tập toàn diện được thiết kế đặc biệt cho kỳ thi THPT Quốc Gia</div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(15,76,129,.1)">🎬</div>
+        <div class="feature-title">Video bài giảng HD</div>
+        <div class="feature-desc">Hơn 5.000 video bài giảng chất lượng cao, học mọi lúc mọi nơi với tốc độ phát linh hoạt.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(249,115,22,.1)">🤖</div>
+        <div class="feature-title">Trợ lý AI thông minh</div>
+        <div class="feature-desc">Hỏi bất cứ câu hỏi nào về bài học, nhận giải thích chi tiết và gợi ý cá nhân hóa.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(16,185,129,.1)">📊</div>
+        <div class="feature-title">Lộ trình cá nhân hóa</div>
+        <div class="feature-desc">Hệ thống phân tích năng lực và đề xuất lộ trình học phù hợp với từng học sinh.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(139,92,246,.1)">📝</div>
+        <div class="feature-title">Đề thi thử THPTQG</div>
+        <div class="feature-desc">Hơn 500 đề thi thử chuẩn cấu trúc Bộ GD&ĐT với phân tích chi tiết sau khi làm bài.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(249,115,22,.1)">🏆</div>
+        <div class="feature-title">Theo dõi tiến độ</div>
+        <div class="feature-desc">Dashboard trực quan, báo cáo học tập chi tiết và so sánh với toàn quốc.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(34,211,238,.1)">💬</div>
+        <div class="feature-title">Hỏi đáp trực tiếp</div>
+        <div class="feature-desc">Đặt câu hỏi cho giáo viên, nhận phản hồi nhanh chóng từ đội ngũ chuyên gia.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="section" id="landing-courses">
+    <div class="section-header">
+      <div class="section-tag">Khóa học nổi bật</div>
+      <div class="section-title">Ôn luyện toàn diện 12 môn thi</div>
+    </div>
+    <div class="courses-grid">
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#0f4c81,#1a6db5)"><span>📐</span><span class="course-badge" style="background:var(--accent);color:#fff">Bestseller</span></div>
+        <div class="course-body">
+          <div class="course-subject">Toán học</div>
+          <div class="course-name">Toán THPT Quốc Gia – Luyện đề 2025</div>
+          <div class="course-meta">⭐ 4.9 &nbsp;·&nbsp; 📹 120 bài &nbsp;·&nbsp; 👥 12.500 học sinh</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0"></div></div>
+          <div class="course-footer">
+            <div class="course-price">299.000đ</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('loginModal')">Đăng ký</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)"><span>📖</span><span class="course-badge" style="background:var(--success);color:#fff">Mới</span></div>
+        <div class="course-body">
+          <div class="course-subject">Ngữ văn</div>
+          <div class="course-name">Ngữ Văn – Nghị luận văn học & xã hội</div>
+          <div class="course-meta">⭐ 4.8 &nbsp;·&nbsp; 📹 80 bài &nbsp;·&nbsp; 👥 8.200 học sinh</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0"></div></div>
+          <div class="course-footer">
+            <div class="course-price">249.000đ</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('loginModal')">Đăng ký</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#065f46,#10b981)"><span>🌍</span></div>
+        <div class="course-body">
+          <div class="course-subject">Tiếng Anh</div>
+          <div class="course-name">Tiếng Anh THPTQG – Chinh phục 9+ điểm</div>
+          <div class="course-meta">⭐ 4.9 &nbsp;·&nbsp; 📹 95 bài &nbsp;·&nbsp; 👥 15.000 học sinh</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0"></div></div>
+          <div class="course-footer">
+            <div class="course-price free">Miễn phí</div>
+            <button class="btn btn-success btn-sm" onclick="showModal('loginModal')">Học ngay</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#c2410c,#f97316)"><span>⚗️</span></div>
+        <div class="course-body">
+          <div class="course-subject">Hóa học</div>
+          <div class="course-name">Hóa học – Ôn tập lý thuyết & bài tập</div>
+          <div class="course-meta">⭐ 4.7 &nbsp;·&nbsp; 📹 100 bài &nbsp;·&nbsp; 👥 7.800 học sinh</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0"></div></div>
+          <div class="course-footer">
+            <div class="course-price">279.000đ</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('loginModal')">Đăng ký</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#1e40af,#60a5fa)"><span>⚛️</span></div>
+        <div class="course-body">
+          <div class="course-subject">Vật lý</div>
+          <div class="course-name">Vật lý – Sóng, Điện từ & Hiện đại</div>
+          <div class="course-meta">⭐ 4.8 &nbsp;·&nbsp; 📹 88 bài &nbsp;·&nbsp; 👥 9.100 học sinh</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0"></div></div>
+          <div class="course-footer">
+            <div class="course-price">259.000đ</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('loginModal')">Đăng ký</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb" style="background:linear-gradient(135deg,#92400e,#d97706)"><span>🌿</span></div>
+        <div class="course-body">
+          <div class="course-subject">Sinh học</div>
+          <div class="course-name">Sinh học – Di truyền & Tiến hóa</div>
+          <div class="course-meta">⭐ 4.6 &nbsp;·&nbsp; 📹 76 bài &nbsp;·&nbsp; 👥 5.600 học sinh</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0"></div></div>
+          <div class="course-footer">
+            <div class="course-price">239.000đ</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('loginModal')">Đăng ký</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px"><button class="btn btn-outline btn-lg" onclick="showModal('loginModal')">Xem tất cả 200+ khóa học →</button></div>
+  </section>
+
+  <!-- INSTRUCTORS -->
+  <section class="section" id="landing-instructors" style="background:var(--surface)">
+    <div class="section-header">
+      <div class="section-tag">Đội ngũ giảng viên</div>
+      <div class="section-title">Học từ những giáo viên hàng đầu</div>
+    </div>
+    <div class="instructors-grid">
+      <div class="instructor-card">
+        <div class="instructor-avatar">👨‍🏫</div>
+        <div class="instructor-name">ThS. Nguyễn Thanh Tùng</div>
+        <div class="instructor-subject">Toán học</div>
+        <div class="instructor-rating"><span class="stars">★★★★★</span> 4.9 · 12.500 học sinh</div>
+      </div>
+      <div class="instructor-card">
+        <div class="instructor-avatar">👩‍🏫</div>
+        <div class="instructor-name">TS. Trần Thị Lan Anh</div>
+        <div class="instructor-subject">Ngữ Văn</div>
+        <div class="instructor-rating"><span class="stars">★★★★★</span> 4.8 · 8.200 học sinh</div>
+      </div>
+      <div class="instructor-card">
+        <div class="instructor-avatar">👨‍🔬</div>
+        <div class="instructor-name">ThS. Lê Hoàng Minh</div>
+        <div class="instructor-subject">Vật lý & Hóa học</div>
+        <div class="instructor-rating"><span class="stars">★★★★★</span> 4.9 · 16.000 học sinh</div>
+      </div>
+      <div class="instructor-card">
+        <div class="instructor-avatar">👩‍💻</div>
+        <div class="instructor-name">ThS. Phạm Thu Hương</div>
+        <div class="instructor-subject">Tiếng Anh</div>
+        <div class="instructor-rating"><span class="stars">★★★★★</span> 4.9 · 15.000 học sinh</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-tag">Tin tức & Cập nhật</div>
+      <div class="section-title">Thông tin tuyển sinh mới nhất</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;max-width:1000px;margin:0 auto">
+      <div class="card" style="cursor:pointer" onclick="toast('📰 Đang mở bài viết...')">
+        <div style="height:160px;background:linear-gradient(135deg,#0f4c81,#1a6db5);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:3rem">📰</div>
+        <div class="card-body">
+          <div class="badge badge-blue mb-8">Tuyển sinh 2025</div>
+          <div class="fw-bold mb-8">Bộ GD&ĐT công bố định dạng đề thi THPTQG 2025</div>
+          <div class="text-sm text-muted">Cấu trúc đề thi có nhiều thay đổi quan trọng so với năm 2024...</div>
+          <div class="text-xs text-muted mt-8">📅 15/05/2025</div>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="toast('📰 Đang mở bài viết...')">
+        <div style="height:160px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:3rem">🎓</div>
+        <div class="card-body">
+          <div class="badge badge-purple mb-8">Học bổng</div>
+          <div class="fw-bold mb-8">Top 50 trường đại học xét học bạ năm 2025</div>
+          <div class="text-sm text-muted">Danh sách các trường đại học tốp đầu xét học bạ 2025...</div>
+          <div class="text-xs text-muted mt-8">📅 10/05/2025</div>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="toast('📰 Đang mở bài viết...')">
+        <div style="height:160px;background:linear-gradient(135deg,#065f46,#10b981);border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:3rem">📊</div>
+        <div class="card-body">
+          <div class="badge badge-green mb-8">Điểm chuẩn</div>
+          <div class="fw-bold mb-8">Dự đoán điểm chuẩn các khối thi 2025</div>
+          <div class="text-sm text-muted">Phân tích và dự đoán điểm chuẩn dựa trên thống kê...</div>
+          <div class="text-xs text-muted mt-8">📅 08/05/2025</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="landing-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">📚 EduViet</div>
+        <div class="footer-desc">Nền tảng học tập thông minh hàng đầu Việt Nam, giúp học sinh THPT chinh phục kỳ thi với hiệu quả cao nhất.</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="toast('📱 Ứng dụng sắp ra mắt!')">📱 App Store</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('📱 Ứng dụng sắp ra mắt!')">🤖 Google Play</button>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Khóa học</div>
+        <div class="footer-links">
+          <a href="#">Toán học</a><a href="#">Ngữ Văn</a><a href="#">Tiếng Anh</a><a href="#">Vật lý</a><a href="#">Hóa học</a><a href="#">Sinh học</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">EduViet</div>
+        <div class="footer-links">
+          <a href="#">Giới thiệu</a><a href="#">Giảng viên</a><a href="#">Blog</a><a href="#">Tuyển dụng</a><a href="#">Liên hệ</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Hỗ trợ</div>
+        <div class="footer-links">
+          <a href="#">Trung tâm trợ giúp</a><a href="#">Điều khoản</a><a href="#">Bảo mật</a><a href="#">Báo cáo vi phạm</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2025 EduViet. Tất cả quyền được bảo lưu. | Hotline: 1800 1234 (Miễn phí)</div>
+  </footer>
+</div><!-- /page-guest -->
+
+<!-- ============================================================ -->
+<!-- PAGE: APP (after login)                                       -->
+<!-- ============================================================ -->
+<div id="page-app">
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="appSidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-text">📚 EduViet</div>
+        <div class="sidebar-logo-sub">Học thông minh · Đỗ đại học</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">👨‍🎓</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarName">Học Sinh</div>
+          <div class="sidebar-user-role" id="sidebarRole">Học sinh</div>
+        </div>
+      </div>
+      <div class="sidebar-nav" id="sidebarNav"><!-- filled by JS --></div>
+      <div class="sidebar-footer">
+        <button class="sidebar-item" style="width:100%;color:rgba(255,255,255,.7)" onclick="logout()">🚪 Đăng xuất</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-area">
+      <header class="main-header">
+        <div class="main-header-title" id="mainTitle">Dashboard</div>
+        <div class="search-bar">
+          <span style="color:var(--text3)">🔍</span>
+          <input type="text" placeholder="Tìm kiếm khóa học, bài học..." oninput="searchCourses(this.value)">
+        </div>
+        <div class="main-header-right">
+          <div class="notif-btn" onclick="toggleNotif()">
+            🔔
+            <div class="notif-dot" id="notifDot"></div>
+          </div>
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;font-size:1.2rem" id="headerAvatar">👤</div>
+        </div>
+      </header>
+      <div class="main-content" id="mainContent"><!-- filled by JS --></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODALS                                                        -->
+<!-- ============================================================ -->
+
+<!-- LOGIN -->
+<div id="loginModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('loginModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🔐 Đăng nhập EduViet</div>
+        <div class="modal-close" onclick="closeModal('loginModal')">✕</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchLoginRole('student',this)">👨‍🎓 Học sinh</div>
+        <div class="tab" onclick="switchLoginRole('teacher',this)">👨‍🏫 Giáo viên</div>
+        <div class="tab" onclick="switchLoginRole('admin',this)">⚙️ Admin</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email hoặc tên đăng nhập</label>
+        <input class="form-input" id="loginEmail" type="email" placeholder="vd: hocsinh@gmail.com" value="student@eduviet.vn">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mật khẩu</label>
+        <input class="form-input" id="loginPass" type="password" placeholder="••••••••" value="123456">
+      </div>
+      <div class="flex justify-between items-center mb-16" style="font-size:.85rem">
+        <label><input type="checkbox"> Ghi nhớ đăng nhập</label>
+        <a href="#" style="color:var(--primary)" onclick="closeModal('loginModal');showModal('resetModal')">Quên mật khẩu?</a>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">Đăng nhập</button>
+      <div class="divider"></div>
+      <button class="btn btn-ghost btn-block" onclick="closeModal('loginModal');showModal('registerModal')">Chưa có tài khoản? Đăng ký miễn phí</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="registerModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('registerModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🚀 Đăng ký tài khoản</div>
+        <div class="modal-close" onclick="closeModal('registerModal')">✕</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Họ và tên</label>
+        <input class="form-input" id="regName" placeholder="Nguyễn Văn A">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="regEmail" type="email" placeholder="email@gmail.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Số điện thoại</label>
+        <input class="form-input" id="regPhone" placeholder="0901234567">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mật khẩu</label>
+        <input class="form-input" id="regPass" type="password" placeholder="Tối thiểu 6 ký tự">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lớp học</label>
+        <select class="form-select">
+          <option>Lớp 10</option><option>Lớp 11</option><option selected>Lớp 12</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg mt-8" onclick="doRegister()">Tạo tài khoản miễn phí</button>
+      <div class="text-xs text-muted" style="text-align:center;margin-top:12px">Đăng ký đồng nghĩa bạn đồng ý với Điều khoản & Chính sách bảo mật</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD -->
+<div id="resetModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('resetModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🔑 Đặt lại mật khẩu</div>
+        <div class="modal-close" onclick="closeModal('resetModal')">✕</div>
+      </div>
+      <p class="text-sm text-muted mb-16">Nhập email của bạn, chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" placeholder="email@gmail.com">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="toast('📧 Email đặt lại mật khẩu đã được gửi!','success');closeModal('resetModal')">Gửi email xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM SCHEDULE -->
+<div id="scheduleModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('scheduleModal')">
+    <div class="modal" style="max-width:700px">
+      <div class="modal-header">
+        <div class="modal-title">📅 Lịch thi THPT Quốc Gia 2025</div>
+        <div class="modal-close" onclick="closeModal('scheduleModal')">✕</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Ngày</th><th>Buổi</th><th>Môn thi</th><th>Thời gian</th></tr></thead>
+          <tbody>
+            <tr><td>26/06/2025</td><td>🌅 Sáng</td><td><span class="badge badge-blue">Ngữ Văn</span></td><td>120 phút</td></tr>
+            <tr><td>27/06/2025</td><td>🌅 Sáng</td><td><span class="badge badge-orange">Toán học</span></td><td>90 phút</td></tr>
+            <tr><td>28/06/2025</td><td>🌅 Sáng</td><td><span class="badge badge-green">Tiếng Anh</span></td><td>60 phút</td></tr>
+            <tr><td>28/06/2025</td><td>🌆 Chiều</td><td><span class="badge badge-purple">Vật Lý / Lịch Sử</span></td><td>50 phút</td></tr>
+            <tr><td>29/06/2025</td><td>🌅 Sáng</td><td><span class="badge badge-red">Hóa Học / Địa Lý</span></td><td>50 phút</td></tr>
+            <tr><td>29/06/2025</td><td>🌆 Chiều</td><td><span class="badge badge-blue">Sinh Học / GDCD</span></td><td>50 phút</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDE -->
+<div id="guideModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('guideModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">📖 Hướng dẫn sử dụng EduViet</div>
+        <div class="modal-close" onclick="closeModal('guideModal')">✕</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">1</div>
+          <div><div class="fw-bold">Đăng ký tài khoản</div><div class="text-sm text-muted">Tạo tài khoản miễn phí với email hoặc số điện thoại</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">2</div>
+          <div><div class="fw-bold">Làm bài kiểm tra đầu vào</div><div class="text-sm text-muted">Hệ thống đánh giá năng lực và đề xuất lộ trình phù hợp</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">3</div>
+          <div><div class="fw-bold">Chọn khóa học và học</div><div class="text-sm text-muted">Xem video bài giảng, làm bài tập và theo dõi tiến độ</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">4</div>
+          <div><div class="fw-bold">Luyện đề thi thử</div><div class="text-sm text-muted">Làm đề thi thử THPTQG và xem phân tích chi tiết</div></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block mt-24" onclick="closeModal('guideModal');showModal('registerModal')">🚀 Bắt đầu ngay</button>
+    </div>
+  </div>
+</div>
+
+<!-- PURCHASE MODAL -->
+<div id="purchaseModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('purchaseModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">💳 Thanh toán khóa học</div>
+        <div class="modal-close" onclick="closeModal('purchaseModal')">✕</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:16px;margin-bottom:20px">
+        <div class="fw-bold">Toán THPT Quốc Gia – Luyện đề 2025</div>
+        <div class="text-sm text-muted mt-4">120 bài giảng · Trọn đời</div>
+        <div style="font-size:1.4rem;font-weight:800;color:var(--accent);margin-top:8px">299.000đ</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">💳 Thẻ ngân hàng</div>
+        <div class="tab" onclick="toast('💸 Chuyển khoản: EduViet - MB Bank - 1234567890')">🏦 Chuyển khoản</div>
+        <div class="tab" onclick="toast('📱 Quét mã QR để thanh toán')">📱 QR Code</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Số thẻ</label>
+        <input class="form-input" placeholder="1234 5678 9012 3456">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Ngày hết hạn</label><input class="form-input" placeholder="MM/YY"></div>
+        <div class="form-group"><label class="form-label">CVV</label><input class="form-input" placeholder="123"></div>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="toast('✅ Thanh toán thành công! Khóa học đã được mở khóa.','success');closeModal('purchaseModal')">Xác nhận thanh toán 299.000đ</button>
+    </div>
+  </div>
+</div>
+
+<!-- RATE MODAL -->
+<div id="rateModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('rateModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">⭐ Đánh giá khóa học</div>
+        <div class="modal-close" onclick="closeModal('rateModal')">✕</div>
+      </div>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:2.5rem;margin-bottom:8px" id="ratingStars">☆☆☆☆☆</div>
+        <div class="text-sm text-muted">Nhấn vào sao để đánh giá</div>
+      </div>
+      <script>
+        let ratingVal=0;
+        function setRating(n){ratingVal=n;let s='';for(let i=1;i<=5;i++)s+=i<=n?'★':'☆';document.getElementById('ratingStars').textContent=s;}
+      </script>
+      <div style="text-align:center;font-size:2rem;cursor:pointer;margin-bottom:20px">
+        <span onclick="setRating(1)">⭐</span><span onclick="setRating(2)">⭐</span><span onclick="setRating(3)">⭐</span><span onclick="setRating(4)">⭐</span><span onclick="setRating(5)">⭐</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nhận xét của bạn</label>
+        <textarea class="form-textarea" placeholder="Chia sẻ trải nghiệm học tập của bạn..."></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="toast('⭐ Cảm ơn bạn đã đánh giá!','success');closeModal('rateModal')">Gửi đánh giá</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div id="deleteConfirmModal" style="display:none">
+  <div class="modal-overlay" onclick="if(event.target===this)closeModal('deleteConfirmModal')">
+    <div class="modal" style="max-width:440px">
+      <div class="modal-header">
+        <div class="modal-title" style="color:var(--danger)">⚠️ Xác nhận xóa</div>
+        <div class="modal-close" onclick="closeModal('deleteConfirmModal')">✕</div>
+      </div>
+      <p class="text-sm text-muted mb-24">Bạn có chắc chắn muốn xóa khóa học này? Hành động này không thể hoàn tác.</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost flex-1" onclick="closeModal('deleteConfirmModal')">Hủy</button>
+        <button class="btn btn-danger flex-1" onclick="toast('🗑️ Đã xóa khóa học!','success');closeModal('deleteConfirmModal')">Xóa khóa học</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRY TEST MODAL -->
+<div id="entryTestModal" style="display:none">
+  <div class="modal-overlay">
+    <div class="modal" style="max-width:640px">
+      <div class="modal-header">
+        <div class="modal-title">🎯 Kiểm tra trình độ đầu vào</div>
+      </div>
+      <div class="entry-progress" id="entryProgress">
+        <div class="entry-prog-dot active"></div><div class="entry-prog-dot"></div><div class="entry-prog-dot"></div><div class="entry-prog-dot"></div><div class="entry-prog-dot"></div>
+      </div>
+      <div class="entry-step active" id="entryStep1">
+        <div class="quiz-question">1. Giải phương trình: 2x² - 5x + 3 = 0</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">A</div>x = 1 hoặc x = 3/2</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,true)"><div class="quiz-opt-circle">B</div>x = 3/2 hoặc x = 1 ✓</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">C</div>x = -1 hoặc x = -3/2</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">D</div>Phương trình vô nghiệm</div>
+        </div>
+        <button class="btn btn-primary mt-24" onclick="nextEntryStep(2)">Tiếp theo →</button>
+      </div>
+      <div class="entry-step" id="entryStep2">
+        <div class="quiz-question">2. Đạo hàm của f(x) = x³ - 3x² + 2x - 1 là:</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">A</div>f'(x) = 3x² - 3x + 2</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,true)"><div class="quiz-opt-circle">B</div>f'(x) = 3x² - 6x + 2 ✓</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">C</div>f'(x) = x² - 6x + 2</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">D</div>f'(x) = 3x² - 6x - 2</div>
+        </div>
+        <button class="btn btn-primary mt-24" onclick="nextEntryStep(3)">Tiếp theo →</button>
+      </div>
+      <div class="entry-step" id="entryStep3">
+        <div class="quiz-question">3. Câu nào sau đây dùng đúng thì Present Perfect?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">A</div>She goes to Hanoi yesterday.</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,true)"><div class="quiz-opt-circle">B</div>I have lived here for 5 years. ✓</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">C</div>He will finish the work last night.</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">D</div>They are watching TV at 8 PM tomorrow.</div>
+        </div>
+        <button class="btn btn-primary mt-24" onclick="nextEntryStep(4)">Tiếp theo →</button>
+      </div>
+      <div class="entry-step" id="entryStep4">
+        <div class="quiz-question">4. Hình thức nghệ thuật chủ yếu trong đoạn trích "Chí Phèo" của Nam Cao là:</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">A</div>Miêu tả thiên nhiên</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">B</div>Thơ trữ tình</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,true)"><div class="quiz-opt-circle">C</div>Độc thoại nội tâm & ngôn ngữ nhân vật ✓</div>
+          <div class="quiz-option" onclick="selectEntryOpt(this,false)"><div class="quiz-opt-circle">D</div>Biểu tượng và ẩn dụ</div>
+        </div>
+        <button class="btn btn-primary mt-24" onclick="nextEntryStep(5)">Tiếp theo →</button>
+      </div>
+      <div class="entry-step" id="entryStep5">
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:3rem;margin-bottom:16px">🎉</div>
+          <div style="font-size:1.4rem;font-weight:800;margin-bottom:8px">Bạn đạt 75/100 điểm!</div>
+          <div class="text-muted mb-16">Trình độ: <strong style="color:var(--primary)">Trung bình khá</strong></div>
+          <div style="background:var(--surface2);border-radius:10px;padding:16px;text-align:left;margin-bottom:20px">
+            <div class="fw-bold mb-8">📋 Lộ trình được đề xuất:</div>
+            <div class="text-sm">✅ Toán học – Ôn tập nâng cao<br>✅ Tiếng Anh – Luyện kỹ năng<br>⚡ Ngữ Văn – Cần cải thiện</div>
+          </div>
+          <button class="btn btn-primary btn-lg btn-block" onclick="closeModal('entryTestModal');toast('✅ Lộ trình học đã được tạo!','success')">🚀 Bắt đầu theo lộ trình</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentRole = 'student';
+let currentView = 'dashboard';
+let notifOpen = false;
+let loginRole = 'student';
+
+const notifications = [
+  { icon:'📝', title:'Bài tập Toán đã được chấm điểm', time:'5 phút trước', unread:true },
+  { icon:'🎬', title:'Bài học mới: Tích phân bội', time:'1 giờ trước', unread:true },
+  { icon:'🏆', title:'Bạn đã hoàn thành 70% khóa Toán!', time:'3 giờ trước', unread:false },
+  { icon:'💬', title:'Giảng viên đã trả lời câu hỏi của bạn', time:'Hôm qua', unread:false },
+  { icon:'📅', title:'Nhắc nhở: Thi thử vào 20h tối nay', time:'Hôm qua', unread:false },
+];
+
+// ============================================================
+// UTIL
+// ============================================================
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = 'toast-item ' + (type==='success'?'success':type==='error'?'error':'');
+  el.textContent = msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
+
+function showModal(id) {
+  document.getElementById(id).style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).style.display='none';
+  document.body.style.overflow='';
+}
+
+function scrollToId(id) {
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function switchLoginRole(role, el) {
+  loginRole = role;
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  if(!email) { toast('Vui lòng nhập email','error'); return; }
+  closeModal('loginModal');
+  currentRole = loginRole;
+  enterApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('regName').value;
+  if(!name) { toast('Vui lòng nhập họ tên','error'); return; }
+  closeModal('registerModal');
+  currentRole = 'student';
+  enterApp();
+  setTimeout(()=>showModal('entryTestModal'), 800);
+}
+
+function enterApp() {
+  document.getElementById('page-guest').style.display='none';
+  document.getElementById('page-app').style.display='block';
+  setupSidebar();
+  setupNotifs();
+  renderView('dashboard');
+  if(currentRole==='student') {
+    document.getElementById('sidebarAvatar').textContent='👨‍🎓';
+    document.getElementById('headerAvatar').textContent='👨‍🎓';
+    document.getElementById('sidebarName').textContent='Nguyễn Văn Anh';
+    document.getElementById('sidebarRole').textContent='Học sinh · Lớp 12';
+  } else if(currentRole==='teacher') {
+    document.getElementById('sidebarAvatar').textContent='👨‍🏫';
+    document.getElementById('headerAvatar').textContent='👨‍🏫';
+    document.getElementById('sidebarName').textContent='ThS. Nguyễn Thanh Tùng';
+    document.getElementById('sidebarRole').textContent='Giảng viên · Toán học';
+  } else {
+    document.getElementById('sidebarAvatar').textContent='⚙️';
+    document.getElementById('headerAvatar').textContent='⚙️';
+    document.getElementById('sidebarName').textContent='Admin EduViet';
+    document.getElementById('sidebarRole').textContent='Quản trị viên';
+  }
+}
+
+function logout() {
+  document.getElementById('page-app').style.display='none';
+  document.getElementById('page-guest').style.display='block';
+  toast('👋 Đã đăng xuất thành công!');
+}
+
+// ============================================================
+// SIDEBAR NAVIGATION
+// ============================================================
+const studentNav = [
+  { label:'TỔNG QUAN', items:[
+    { icon:'🏠', label:'Dashboard', view:'dashboard' },
+    { icon:'🔔', label:'Thông báo', view:'notifications', badge:2 },
+  ]},
+  { label:'HỌC TẬP', items:[
+    { icon:'📚', label:'Khóa học của tôi', view:'myCourses' },
+    { icon:'🔍', label:'Tìm kiếm khóa học', view:'browseCourses' },
+    { icon:'🎬', label:'Xem bài học', view:'watchLesson' },
+    { icon:'📝', label:'Bài kiểm tra', view:'quizzes' },
+    { icon:'🗺️', label:'Lộ trình học', view:'roadmap' },
+    { icon:'🤖', label:'Trợ lý AI', view:'aiAssistant' },
+  ]},
+  { label:'KẾT QUẢ', items:[
+    { icon:'📊', label:'Kết quả học tập', view:'results' },
+    { icon:'🏆', label:'Tiến độ hoàn thành', view:'progress' },
+  ]},
+];
+
+const teacherNav = [
+  { label:'TỔNG QUAN', items:[
+    { icon:'🏠', label:'Dashboard', view:'teacherDashboard' },
+    { icon:'📊', label:'Theo dõi học sinh', view:'monitorStudents' },
+  ]},
+  { label:'QUẢN LÝ KHÓA HỌC', items:[
+    { icon:'📚', label:'Khóa học của tôi', view:'teacherCourses' },
+    { icon:'➕', label:'Tạo khóa học', view:'createCourse' },
+    { icon:'🎬', label:'Upload video', view:'uploadVideo' },
+    { icon:'📁', label:'Tài liệu học tập', view:'uploadMaterials' },
+  ]},
+  { label:'KIỂM TRA', items:[
+    { icon:'📝', label:'Tạo bài tập', view:'createAssignment' },
+    { icon:'📋', label:'Tạo đề thi', view:'createExam' },
+    { icon:'✏️', label:'Chấm bài tự luận', view:'gradeEssay' },
+    { icon:'💬', label:'Trả lời câu hỏi', view:'answerQuestions', badge:3 },
+    { icon:'📈', label:'Kết quả học sinh', view:'viewStudentResults' },
+  ]},
+];
+
+const adminNav = [
+  { label:'QUẢN TRỊ', items:[
+    { icon:'🏠', label:'Dashboard', view:'adminDashboard' },
+    { icon:'👥', label:'Quản lý tài khoản', view:'manageAccounts' },
+    { icon:'📚', label:'Danh mục & Môn học', view:'manageCategories' },
+    { icon:'✅', label:'Duyệt nội dung', view:'approveContent' },
+    { icon:'🚨', label:'Báo cáo vi phạm', view:'handleReports', badge:5 },
+    { icon:'📊', label:'Thống kê & Doanh thu', view:'statistics' },
+    { icon:'🎨', label:'Cấu hình giao diện', view:'uiConfig' },
+    { icon:'💾', label:'Backup & Restore', view:'backupRestore' },
+    { icon:'📋', label:'Nhật ký hệ thống', view:'auditLogs' },
+  ]},
+];
+
+function setupSidebar() {
+  const nav = currentRole==='student' ? studentNav : currentRole==='teacher' ? teacherNav : adminNav;
+  let html = '';
+  nav.forEach(section => {
+    html += `<div class="sidebar-section-label">${section.label}</div>`;
+    section.items.forEach(item => {
+      html += `<div class="sidebar-item" onclick="renderView('${item.view}',this)">
+        ${item.icon} ${item.label}
+        ${item.badge ? `<span class="badge">${item.badge}</span>` : ''}
+      </div>`;
+    });
+  });
+  document.getElementById('sidebarNav').innerHTML = html;
+}
+
+function setupNotifs() {
+  document.getElementById('notifList').innerHTML = notifications.map(n => `
+    <div class="notif-item ${n.unread?'unread':''}" onclick="toast('📖 Đang xem thông báo...')">
+      <div class="notif-item-icon" style="background:var(--surface2)">${n.icon}</div>
+      <div>
+        <div class="notif-item-title">${n.title}</div>
+        <div class="notif-item-time">${n.time}</div>
+      </div>
+      ${n.unread ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--primary);margin-left:auto;flex-shrink:0;margin-top:4px"></div>' : ''}
+    </div>`).join('');
+}
+
+function markAllRead() {
+  notifications.forEach(n=>n.unread=false);
+  setupNotifs();
+  document.getElementById('notifDot').style.display='none';
+  toast('✅ Đã đánh dấu tất cả là đã đọc');
+}
+
+function toggleNotif() {
+  notifOpen = !notifOpen;
+  document.getElementById('notifPanel').classList.toggle('open', notifOpen);
+}
+
+document.addEventListener('click', function(e) {
+  if(!e.target.closest('.notif-btn') && !e.target.closest('.notif-panel')) {
+    notifOpen = false;
+    document.getElementById('notifPanel').classList.remove('open');
+  }
+});
+
+// ============================================================
+// VIEW ROUTER
+// ============================================================
+function renderView(view, sidebarEl) {
+  currentView = view;
+  // Update active sidebar
+  document.querySelectorAll('.sidebar-item').forEach(el=>el.classList.remove('active'));
+  if(sidebarEl) sidebarEl.classList.add('active');
+
+  const titles = {
+    dashboard:'🏠 Dashboard', notifications:'🔔 Thông báo', myCourses:'📚 Khóa học của tôi',
+    browseCourses:'🔍 Tìm kiếm khóa học', watchLesson:'🎬 Xem bài học', quizzes:'📝 Bài kiểm tra',
+    roadmap:'🗺️ Lộ trình học', aiAssistant:'🤖 Trợ lý AI', results:'📊 Kết quả học tập',
+    progress:'🏆 Tiến độ hoàn thành', teacherDashboard:'🏠 Dashboard', monitorStudents:'📊 Theo dõi học sinh',
+    teacherCourses:'📚 Khóa học của tôi', createCourse:'➕ Tạo khóa học', uploadVideo:'🎬 Upload video',
+    uploadMaterials:'📁 Tài liệu học tập', createAssignment:'📝 Tạo bài tập', createExam:'📋 Tạo đề thi',
+    gradeEssay:'✏️ Chấm bài tự luận', answerQuestions:'💬 Trả lời câu hỏi', viewStudentResults:'📈 Kết quả học sinh',
+    adminDashboard:'🏠 Dashboard Admin', manageAccounts:'👥 Quản lý tài khoản', manageCategories:'📚 Danh mục & Môn học',
+    approveContent:'✅ Duyệt nội dung', handleReports:'🚨 Báo cáo vi phạm', statistics:'📊 Thống kê & Doanh thu',
+    uiConfig:'🎨 Cấu hình giao diện', backupRestore:'💾 Backup & Restore', auditLogs:'📋 Nhật ký hệ thống',
+  };
+  document.getElementById('mainTitle').textContent = titles[view] || view;
+
+  const content = getViewContent(view);
+  document.getElementById('mainContent').innerHTML = content;
+  initViewJS(view);
+}
+
+function searchCourses(q) {
+  if(q.length > 2) { renderView('browseCourses'); }
+}
+
+// ============================================================
+// VIEW CONTENT
+// ============================================================
+function getViewContent(view) {
+  switch(view) {
+    case 'dashboard': return viewStudentDashboard();
+    case 'notifications': return viewNotifications();
+    case 'myCourses': return viewMyCourses();
+    case 'browseCourses': return viewBrowseCourses();
+    case 'watchLesson': return viewWatchLesson();
+    case 'quizzes': return viewQuizzes();
+    case 'roadmap': return viewRoadmap();
+    case 'aiAssistant': return viewAIAssistant();
+    case 'results': return viewResults();
+    case 'progress': return viewProgress();
+    case 'teacherDashboard': return viewTeacherDashboard();
+    case 'monitorStudents': return viewMonitorStudents();
+    case 'teacherCourses': return viewTeacherCourses();
+    case 'createCourse': return viewCreateCourse();
+    case 'uploadVideo': return viewUploadVideo();
+    case 'uploadMaterials': return viewUploadMaterials();
+    case 'createAssignment': return viewCreateAssignment();
+    case 'createExam': return viewCreateExam();
+    case 'gradeEssay': return viewGradeEssay();
+    case 'answerQuestions': return viewAnswerQuestions();
+    case 'viewStudentResults': return viewStudentResultsTeacher();
+    case 'adminDashboard': return viewAdminDashboard();
+    case 'manageAccounts': return viewManageAccounts();
+    case 'manageCategories': return viewManageCategories();
+    case 'approveContent': return viewApproveContent();
+    case 'handleReports': return viewHandleReports();
+    case 'statistics': return viewStatistics();
+    case 'uiConfig': return viewUIConfig();
+    case 'backupRestore': return viewBackupRestore();
+    case 'auditLogs': return viewAuditLogs();
+    default: return `<div style="text-align:center;padding:60px"><div style="font-size:3rem">🚧</div><div class="fw-bold mt-16">Đang phát triển</div></div>`;
+  }
+}
+
+// ============================================================
+// STUDENT VIEWS
+// ============================================================
+function viewStudentDashboard() { return `
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(15,76,129,.1)">📚</div>
+    <div class="stat-label">Khóa học đang học</div>
+    <div class="stat-value">4</div>
+    <div class="stat-change up">↑ +1 tuần này</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(249,115,22,.1)">⏱️</div>
+    <div class="stat-label">Giờ học hôm nay</div>
+    <div class="stat-value">2.5h</div>
+    <div class="stat-change up">↑ Mục tiêu 3h</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(16,185,129,.1)">📝</div>
+    <div class="stat-label">Bài làm tuần này</div>
+    <div class="stat-value">8</div>
+    <div class="stat-change up">↑ 80% đúng</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(139,92,246,.1)">🏆</div>
+    <div class="stat-label">Điểm trung bình</div>
+    <div class="stat-value">7.8</div>
+    <div class="stat-change up">↑ +0.4 tháng này</div>
+  </div>
+</div>
+<div class="grid-2" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-header"><div class="card-title">📚 Tiếp tục học</div><button class="btn btn-ghost btn-sm" onclick="renderView('myCourses')">Xem tất cả</button></div>
+    <div class="card-body">
+      ${[
+        {icon:'📐',name:'Toán THPTQG – Luyện đề 2025',progress:73,lesson:'Bài 48: Tích phân bội'},
+        {icon:'🌍',name:'Tiếng Anh – Chinh phục 9+ điểm',progress:45,lesson:'Bài 22: Reading skill'},
+        {icon:'⚗️',name:'Hóa học – Lý thuyết & bài tập',progress:30,lesson:'Bài 15: Hóa hữu cơ'},
+      ].map(c=>`<div class="course-list-item">
+        <div class="course-list-thumb" style="background:linear-gradient(135deg,#0f4c81,#1a6db5)">${c.icon}</div>
+        <div class="flex-1">
+          <div class="course-list-name">${c.name}</div>
+          <div class="course-list-meta">${c.lesson}</div>
+          <div class="progress-bar mt-4"><div class="progress-fill" style="width:${c.progress}%"></div></div>
+        </div>
+        <div class="course-list-right">
+          <div class="fw-bold text-primary">${c.progress}%</div>
+          <button class="btn btn-primary btn-sm mt-4" onclick="renderView('watchLesson')">Học tiếp</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📊 Tiến độ tuần này</div></div>
+    <div class="card-body">
+      <div class="bar-chart" id="weekChart"></div>
+      <div style="margin-top:12px">
+        <div class="flex justify-between text-sm mb-8"><span class="text-muted">Mục tiêu tuần</span><span class="fw-bold">21 giờ</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+        <div class="text-xs text-muted mt-4">13/21 giờ đã hoàn thành (62%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">📅 Lịch thi sắp tới</div><button class="btn btn-ghost btn-sm" onclick="showModal('scheduleModal')">Xem lịch thi</button></div>
+    <div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${[
+          {date:'26/06',subject:'Ngữ Văn',time:'07:30 – 09:30',color:'var(--primary)'},
+          {date:'27/06',subject:'Toán học',time:'07:30 – 09:00',color:'var(--accent)'},
+          {date:'28/06',subject:'Tiếng Anh',time:'07:30 – 08:30',color:'var(--success)'},
+        ].map(e=>`<div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:var(--bg)">
+          <div style="width:44px;text-align:center;background:${e.color};color:#fff;border-radius:8px;padding:6px 4px">
+            <div style="font-size:.7rem;font-weight:700">T6</div>
+            <div style="font-weight:800;font-size:1rem">${e.date.split('/')[0]}</div>
+          </div>
+          <div>
+            <div class="fw-bold">${e.subject}</div>
+            <div class="text-xs text-muted">⏰ ${e.time}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🤖 Hỏi trợ lý AI</div><button class="btn btn-primary btn-sm" onclick="renderView('aiAssistant')">Mở AI Chat</button></div>
+    <div class="card-body">
+      <div class="ai-msg ai" style="max-width:100%">
+        <div class="ai-msg-avatar" style="background:linear-gradient(135deg,var(--primary),var(--accent2))">🤖</div>
+        <div class="ai-msg-bubble">Xin chào! Tôi là trợ lý AI của EduViet. Bạn cần giải thích bài học nào hôm nay? 📚</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="chip" onclick="renderView('aiAssistant')">Giải thích đạo hàm</button>
+        <button class="chip" onclick="renderView('aiAssistant')">Phân tích bài thơ</button>
+        <button class="chip" onclick="renderView('aiAssistant')">Luyện nói tiếng Anh</button>
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+function viewNotifications() { return `
+<div class="card">
+  <div class="card-header"><div class="card-title">🔔 Tất cả thông báo</div><button class="btn btn-ghost btn-sm" onclick="markAllRead()">Đánh dấu đã đọc tất cả</button></div>
+  <div id="fullNotifList">
+    ${notifications.map(n=>`<div class="notif-item ${n.unread?'unread':''}" style="border-radius:0">
+      <div class="notif-item-icon" style="background:var(--surface2)">${n.icon}</div>
+      <div><div class="notif-item-title">${n.title}</div><div class="notif-item-time">${n.time}</div></div>
+      ${n.unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--primary);margin-left:auto;flex-shrink:0;margin-top:6px"></div>':''}
+    </div>`).join('')}
+  </div>
+</div>`; }
+
+function viewMyCourses() { return `
+<div class="flex justify-between items-center mb-24">
+  <div class="tabs" style="flex:1;margin-right:16px;margin-bottom:0">
+    <div class="tab active" onclick="this.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">📚 Đang học (4)</div>
+    <div class="tab" onclick="this.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">✅ Hoàn thành (2)</div>
+    <div class="tab" onclick="this.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">❤️ Yêu thích (6)</div>
+  </div>
+  <button class="btn btn-primary" onclick="renderView('browseCourses')">➕ Thêm khóa học</button>
+</div>
+<div class="courses-grid">
+  ${[
+    {icon:'📐',name:'Toán THPTQG – Luyện đề 2025',sub:'Toán học',progress:73,lessons:120,color:'linear-gradient(135deg,#0f4c81,#1a6db5)',status:'Đang học'},
+    {icon:'🌍',name:'Tiếng Anh – Chinh phục 9+',sub:'Tiếng Anh',progress:45,lessons:95,color:'linear-gradient(135deg,#065f46,#10b981)',status:'Đang học'},
+    {icon:'⚗️',name:'Hóa học – Lý thuyết & bài tập',sub:'Hóa học',progress:30,lessons:100,color:'linear-gradient(135deg,#c2410c,#f97316)',status:'Đang học'},
+    {icon:'⚛️',name:'Vật lý – Sóng, Điện từ & HĐ',sub:'Vật lý',progress:15,lessons:88,color:'linear-gradient(135deg,#1e40af,#60a5fa)',status:'Mới'},
+  ].map(c=>`<div class="course-card">
+    <div class="course-thumb" style="background:${c.color}"><span>${c.icon}</span></div>
+    <div class="course-body">
+      <div class="course-subject">${c.sub}</div>
+      <div class="course-name">${c.name}</div>
+      <div class="course-meta">📹 ${c.lessons} bài &nbsp;·&nbsp; <span class="badge badge-blue">${c.status}</span></div>
+      <div class="text-xs text-muted mb-8">${c.progress}% hoàn thành</div>
+      <div class="progress-bar mb-12"><div class="progress-fill" style="width:${c.progress}%"></div></div>
+      <div class="course-footer">
+        <button class="btn btn-ghost btn-sm" onclick="showModal('rateModal')">⭐ Đánh giá</button>
+        <button class="btn btn-primary btn-sm" onclick="renderView('watchLesson')">▶ Học tiếp</button>
+      </div>
+    </div>
+  </div>`).join('')}
+</div>`; }
+
+function viewBrowseCourses() { return `
+<div class="flex gap-12 mb-24 flex-wrap">
+  <button class="btn btn-primary btn-sm">Tất cả</button>
+  ${['Toán học','Ngữ Văn','Tiếng Anh','Vật lý','Hóa học','Sinh học','Lịch sử','Địa lý','GDCD'].map(s=>`<button class="btn btn-ghost btn-sm" onclick="toast('🔍 Lọc: ${s}')">${s}</button>`).join('')}
+</div>
+<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+  <select class="form-select" style="width:auto"><option>Sắp xếp: Phổ biến nhất</option><option>Mới nhất</option><option>Đánh giá cao</option><option>Giá thấp nhất</option></select>
+  <select class="form-select" style="width:auto"><option>Mọi trình độ</option><option>Cơ bản</option><option>Nâng cao</option></select>
+  <select class="form-select" style="width:auto"><option>Mọi giá</option><option>Miễn phí</option><option>Có phí</option></select>
+</div>
+<div class="courses-grid">
+  ${[
+    {icon:'📐',name:'Toán THPTQG – Luyện đề 2025',sub:'Toán học',rating:'4.9',students:'12.500',lessons:120,price:'299.000đ',color:'linear-gradient(135deg,#0f4c81,#1a6db5)',badge:'Bestseller'},
+    {icon:'📖',name:'Ngữ Văn – Nghị luận văn học',sub:'Ngữ Văn',rating:'4.8',students:'8.200',lessons:80,price:'249.000đ',color:'linear-gradient(135deg,#7c3aed,#a78bfa)',badge:'Mới'},
+    {icon:'🌍',name:'Tiếng Anh – Chinh phục 9+',sub:'Tiếng Anh',rating:'4.9',students:'15.000',lessons:95,price:'Miễn phí',color:'linear-gradient(135deg,#065f46,#10b981)',badge:''},
+    {icon:'⚗️',name:'Hóa học – Lý thuyết & bài tập',sub:'Hóa học',rating:'4.7',students:'7.800',lessons:100,price:'279.000đ',color:'linear-gradient(135deg,#c2410c,#f97316)',badge:''},
+    {icon:'⚛️',name:'Vật lý – Sóng & Điện từ',sub:'Vật lý',rating:'4.8',students:'9.100',lessons:88,price:'259.000đ',color:'linear-gradient(135deg,#1e40af,#60a5fa)',badge:''},
+    {icon:'🌿',name:'Sinh học – Di truyền & Tiến hóa',sub:'Sinh học',rating:'4.6',students:'5.600',lessons:76,price:'239.000đ',color:'linear-gradient(135deg,#92400e,#d97706)',badge:''},
+  ].map(c=>`<div class="course-card">
+    <div class="course-thumb" style="background:${c.color}">
+      <span>${c.icon}</span>
+      ${c.badge?`<span class="course-badge" style="background:var(--accent);color:#fff">${c.badge}</span>`:''}
+    </div>
+    <div class="course-body">
+      <div class="course-subject">${c.sub}</div>
+      <div class="course-name">${c.name}</div>
+      <div class="course-meta">⭐ ${c.rating} &nbsp;·&nbsp; 📹 ${c.lessons} bài &nbsp;·&nbsp; 👥 ${c.students}</div>
+      <div class="course-footer">
+        <div class="course-price ${c.price==='Miễn phí'?'free':''}">${c.price}</div>
+        <button class="btn btn-primary btn-sm" onclick="${c.price==='Miễn phí'?`toast('✅ Đã đăng ký khóa học!','success')`:`showModal('purchaseModal')`}">${c.price==='Miễn phí'?'Học ngay':'Mua ngay'}</button>
+      </div>
+    </div>
+  </div>`).join('')}
+</div>`; }
+
+function viewWatchLesson() { return `
+<div style="display:grid;grid-template-columns:1fr 320px;gap:20px">
+  <div>
+    <div class="video-player">
+      <div style="text-align:center">
+        <div style="font-size:4rem;margin-bottom:16px">▶️</div>
+        <div style="font-size:1rem;opacity:.7">Bài 48: Tích phân bội – Phương pháp đổi biến</div>
+        <div style="font-size:.85rem;opacity:.5;margin-top:8px">12:45 / 35:20</div>
+      </div>
+      <div class="video-controls">
+        <div class="video-progress"><div class="video-progress-fill" id="videoBar" style="width:36%"></div></div>
+        <div class="video-actions">
+          <button class="video-btn" onclick="togglePlay(this)">⏸</button>
+          <button class="video-btn" onclick="toast('⏪ Tua lùi 10s')">⏪</button>
+          <button class="video-btn" onclick="toast('⏩ Tua tới 10s')">⏩</button>
+          <span>12:45 / 35:20</span>
+          <button class="video-btn" style="margin-left:auto" onclick="toast('📝 Đã lưu ghi chú')">📝</button>
+          <select style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:4px;font-size:.8rem;cursor:pointer">
+            <option>1x</option><option>1.25x</option><option selected>1.5x</option><option>2x</option>
+          </select>
+          <button class="video-btn" onclick="toast('⛶ Toàn màn hình')">⛶</button>
+        </div>
+      </div>
+    </div>
+    <!-- In-video question -->
+    <div class="card mt-16" id="inVideoQ" style="border-left:4px solid var(--accent)">
+      <div class="card-header"><div class="card-title">❓ Câu hỏi trong video</div><span class="badge badge-orange">Tại 12:45</span></div>
+      <div class="card-body">
+        <div class="quiz-question">Kết quả của ∫₀¹ x² dx là bao nhiêu?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="checkInVideo(this,false)"><div class="quiz-opt-circle">A</div>1/2</div>
+          <div class="quiz-option" onclick="checkInVideo(this,true)"><div class="quiz-opt-circle">B</div>1/3</div>
+          <div class="quiz-option" onclick="checkInVideo(this,false)"><div class="quiz-opt-circle">C</div>1/4</div>
+          <div class="quiz-option" onclick="checkInVideo(this,false)"><div class="quiz-opt-circle">D</div>2/3</div>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-16">
+      <div class="card-header"><div class="card-title">📁 Tài liệu bài học</div></div>
+      <div class="card-body">
+        ${[
+          {name:'Lý thuyết tích phân bội.pdf',size:'2.4 MB'},
+          {name:'Bài tập có lời giải.pdf',size:'4.1 MB'},
+          {name:'Tóm tắt công thức.docx',size:'0.8 MB'},
+        ].map(f=>`<div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div class="flex items-center gap-8"><span>📄</span><span class="text-sm">${f.name}</span><span class="text-xs text-muted">${f.size}</span></div>
+          <button class="btn btn-ghost btn-sm" onclick="toast('⬇️ Đang tải xuống ${f.name}...')">⬇️ Tải</button>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">📋 Nội dung khóa học</div></div>
+      <div style="max-height:400px;overflow-y:auto">
+        ${Array.from({length:10},(_,i)=>`<div class="course-list-item" style="padding:10px 16px;cursor:pointer;${i===3?'background:rgba(15,76,129,.06)':''}" onclick="toast('📖 Đang mở bài '+(${i+1}))">
+          <div style="width:24px;height:24px;border-radius:50%;background:${i<3?'var(--success)':i===3?'var(--primary)':'var(--surface2)'};color:${i<=3?'#fff':'var(--text3)'};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0">${i<3?'✓':i+1}</div>
+          <div class="flex-1">
+            <div class="text-sm fw-bold ${i===3?'text-primary':''}">Bài ${i+1}: ${['Giới thiệu','Khái niệm cơ bản','Công thức Newton-Leibniz','Tích phân bội','Phương pháp thế','PP tích phân từng phần','Bài tập dạng 1','Bài tập dạng 2','Đề thi thử','Tổng kết'][i]}</div>
+            <div class="text-xs text-muted">${[28,35,42,35,38,45,30,33,60,20][i]} phút</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">💬 Hỏi giảng viên</div></div>
+      <div class="card-body">
+        <textarea class="form-textarea" placeholder="Đặt câu hỏi về bài học..." style="min-height:80px"></textarea>
+        <button class="btn btn-primary btn-block mt-8" onclick="toast('✅ Câu hỏi đã được gửi!','success')">Gửi câu hỏi</button>
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+function viewQuizzes() { return `
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(this,'quizTab1')">📝 Bài kiểm tra</div>
+  <div class="tab" onclick="switchTab(this,'quizTab2')">📋 Đề thi thử</div>
+  <div class="tab" onclick="switchTab(this,'quizTab3')">📊 Lịch sử làm bài</div>
+</div>
+<div id="quizTab1">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    ${[
+      {name:'Quiz Toán – Tích phân bội',subject:'Toán học',questions:15,time:20,status:'Chưa làm',color:'var(--primary)'},
+      {name:'Quiz Anh – Unit 5 Grammar',subject:'Tiếng Anh',questions:20,time:25,status:'Chưa làm',color:'var(--success)'},
+      {name:'Quiz Hóa – Hóa hữu cơ',subject:'Hóa học',questions:12,time:15,status:'Đã làm – 8/10',color:'var(--accent)'},
+    ].map(q=>`<div class="card">
+      <div class="card-body flex items-center gap-16">
+        <div style="width:48px;height:48px;border-radius:10px;background:rgba(${q.color==='var(--primary)'?'15,76,129':q.color==='var(--success)'?'16,185,129':'249,115,22'},.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem">📝</div>
+        <div class="flex-1">
+          <div class="fw-bold">${q.name}</div>
+          <div class="text-sm text-muted">${q.subject} · ${q.questions} câu · ${q.time} phút</div>
+        </div>
+        <div class="text-right">
+          <div class="badge ${q.status.startsWith('Đã')?'badge-green':'badge-orange'}">${q.status}</div>
+          <div class="mt-8"><button class="btn btn-primary btn-sm" onclick="startQuiz()">${q.status.startsWith('Đã')?'Làm lại':'Bắt đầu'}</button></div>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>
+</div>
+<div id="quizTab2" style="display:none">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    ${['Đề thi thử THPTQG 2025 – Lần 1','Đề thi thử THPTQG 2024 – Sở GD Hà Nội','Đề thi thử THPTQG 2024 – Sở GD TP.HCM'].map((n,i)=>`<div class="card">
+      <div class="card-body flex items-center gap-16">
+        <div style="width:48px;height:48px;border-radius:10px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem">📋</div>
+        <div class="flex-1">
+          <div class="fw-bold">${n}</div>
+          <div class="text-sm text-muted">40 câu · 90 phút · Toán học</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="startMockExam()">Thi thử</button>
+      </div>
+    </div>`).join('')}
+  </div>
+</div>
+<div id="quizTab3" style="display:none">
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tên bài</th><th>Môn</th><th>Điểm</th><th>Thời gian</th><th>Ngày</th><th></th></tr></thead>
+        <tbody>
+          ${[
+            {name:'Quiz Hóa – Hóa hữu cơ',sub:'Hóa học',score:'8/10',time:'12 phút',date:'22/05/2025'},
+            {name:'Đề thử THPTQG 2024',sub:'Toán học',score:'7.5/10',time:'78 phút',date:'20/05/2025'},
+            {name:'Quiz Anh – Tenses',sub:'Tiếng Anh',score:'9/10',time:'18 phút',date:'18/05/2025'},
+          ].map(r=>`<tr>
+            <td class="fw-bold">${r.name}</td>
+            <td><span class="badge badge-blue">${r.sub}</span></td>
+            <td><span class="fw-bold text-primary">${r.score}</span></td>
+            <td>${r.time}</td>
+            <td class="text-muted">${r.date}</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="toast('📊 Xem phân tích chi tiết...')">Xem chi tiết</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>`; }
+
+function viewRoadmap() { return `
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">🗺️ Lộ trình của bạn – Toán học</div><span class="badge badge-blue">73% hoàn thành</span></div>
+    <div class="card-body">
+      <div class="roadmap-track">
+        ${[
+          {title:'Đại số cơ bản',desc:'Hàm số, phương trình, bất phương trình',done:true},
+          {title:'Giải tích',desc:'Đạo hàm, tích phân, hàm số',done:true},
+          {title:'Tích phân bội',desc:'Phương pháp tính, ứng dụng',done:false,active:true},
+          {title:'Hình học không gian',desc:'Mặt phẳng, đường thẳng, góc, khoảng cách',done:false},
+          {title:'Xác suất – Thống kê',desc:'Biến cố, xác suất, phân phối',done:false},
+          {title:'Luyện đề tổng hợp',desc:'50 đề thi thử THPTQG',done:false},
+        ].map(r=>`<div class="roadmap-item ${r.done?'done':''} ${r.active?'active':''}">
+          <div class="roadmap-dot">${r.done?'✓':''}</div>
+          <div class="roadmap-item-title">${r.title} ${r.active?'<span class="badge badge-orange">Đang học</span>':''}</div>
+          <div class="roadmap-item-desc">${r.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="card mb-16">
+      <div class="card-header"><div class="card-title">📊 Tổng quan lộ trình</div></div>
+      <div class="card-body">
+        ${[
+          {sub:'Toán học',pct:73,color:'var(--primary)'},
+          {sub:'Tiếng Anh',pct:45,color:'var(--success)'},
+          {sub:'Hóa học',pct:30,color:'var(--accent)'},
+          {sub:'Vật lý',pct:15,color:'var(--purple)'},
+        ].map(s=>`<div style="margin-bottom:14px">
+          <div class="flex justify-between text-sm mb-4"><span class="fw-bold">${s.sub}</span><span class="fw-bold" style="color:${s.color}">${s.pct}%</span></div>
+          <div class="progress-bar"><div style="height:100%;border-radius:4px;background:${s.color};width:${s.pct}%;transition:width .5s"></div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">🎯 Mục tiêu điểm thi</div></div>
+      <div class="card-body">
+        ${[
+          {sub:'Toán học',target:8,current:7.5},
+          {sub:'Tiếng Anh',target:9,current:8.2},
+          {sub:'Hóa học',target:7.5,current:6.8},
+        ].map(g=>`<div class="flex items-center gap-12" style="margin-bottom:12px">
+          <div class="flex-1 fw-bold">${g.sub}</div>
+          <div class="text-sm text-muted">Hiện tại: <strong>${g.current}</strong></div>
+          <div class="text-sm text-primary">Mục tiêu: <strong>${g.target}</strong></div>
+        </div>`).join('')}
+        <button class="btn btn-outline btn-block mt-8" onclick="toast('🎯 Cập nhật mục tiêu điểm...')">Chỉnh mục tiêu</button>
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+function viewAIAssistant() { return `
+<div class="card ai-chat-panel" style="height:calc(100vh - 160px)">
+  <div class="card-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent2));display:flex;align-items:center;justify-content:center">🤖</div>
+      <div><div class="fw-bold">Trợ lý AI EduViet</div><div class="text-xs text-success">● Đang hoạt động</div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="chip" onclick="askAI('Giải thích tích phân bội')">Tích phân bội</button>
+      <button class="chip" onclick="askAI('Phân tích bài thơ Tây Tiến')">Tây Tiến</button>
+      <button class="chip" onclick="askAI('Ngữ pháp Present Perfect')">Present Perfect</button>
+    </div>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-msg ai">
+      <div class="ai-msg-avatar" style="background:linear-gradient(135deg,var(--primary),var(--accent2))">🤖</div>
+      <div class="ai-msg-bubble">Xin chào! Tôi là trợ lý AI của EduViet. Tôi có thể giúp bạn:<br><br>
+        📚 Giải thích bài học khó<br>
+        📝 Hướng dẫn làm bài tập<br>
+        🔍 Phân tích đề thi<br>
+        💡 Gợi ý phương pháp học<br><br>
+        Bạn cần hỗ trợ gì hôm nay?</div>
+    </div>
+  </div>
+  <div class="ai-input-area">
+    <input class="ai-input" id="aiInput" placeholder="Nhập câu hỏi của bạn..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="btn btn-primary" onclick="sendAI()">Gửi ↑</button>
+  </div>
+</div>`; }
+
+function viewResults() { return `
+<div class="stats-grid mb-24">
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(15,76,129,.1)">📊</div><div class="stat-label">Điểm TB tháng này</div><div class="stat-value">7.8</div><div class="stat-change up">↑ +0.4</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1)">✅</div><div class="stat-label">Bài làm đúng</div><div class="stat-value">82%</div><div class="stat-change up">↑ +5%</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(249,115,22,.1)">📝</div><div class="stat-label">Tổng bài đã làm</div><div class="stat-value">127</div><div class="stat-change up">↑ +8 tuần</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(139,92,246,.1)">🏅</div><div class="stat-label">Xếp hạng toàn quốc</div><div class="stat-value">Top 15%</div><div class="stat-change up">↑ Tăng 3%</div></div>
+</div>
+<div class="card">
+  <div class="card-header"><div class="card-title">📈 Kết quả theo môn</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Môn học</th><th>Điểm TB</th><th>Bài làm</th><th>Tỉ lệ đúng</th><th>Tiến độ</th></tr></thead>
+      <tbody>
+        ${[
+          {sub:'Toán học',score:7.5,count:42,pct:75,prog:73},
+          {sub:'Tiếng Anh',score:8.2,count:35,pct:82,prog:45},
+          {sub:'Hóa học',score:6.8,count:28,pct:68,prog:30},
+          {sub:'Vật lý',score:7.1,count:22,pct:71,prog:15},
+        ].map(r=>`<tr>
+          <td class="fw-bold">${r.sub}</td>
+          <td><span class="fw-bold text-primary" style="font-size:1.1rem">${r.score}</span></td>
+          <td>${r.count} bài</td>
+          <td><div class="flex items-center gap-8"><div class="progress-bar flex-1"><div class="progress-fill" style="width:${r.pct}%"></div></div><span class="text-sm fw-bold">${r.pct}%</span></div></td>
+          <td><div class="progress-bar" style="width:80px;display:inline-block"><div class="progress-fill" style="width:${r.prog}%"></div></div><span class="text-xs text-muted ml-4">${r.prog}%</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`; }
+
+function viewProgress() { return `
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">🏆 Tiến độ hoàn thành khóa học</div></div>
+    <div class="card-body">
+      ${[
+        {name:'Toán THPTQG',done:87,total:120,pct:73},
+        {name:'Tiếng Anh',done:43,total:95,pct:45},
+        {name:'Hóa học',done:30,total:100,pct:30},
+        {name:'Vật lý',done:13,total:88,pct:15},
+      ].map(c=>`<div style="margin-bottom:18px">
+        <div class="flex justify-between mb-4">
+          <span class="fw-bold">${c.name}</span>
+          <span class="text-sm text-muted">${c.done}/${c.total} bài · <strong class="text-primary">${c.pct}%</strong></span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${c.pct}%"></div></div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🎖️ Huy hiệu đạt được</div></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center">
+        ${[
+          {icon:'⚡',name:'Học nhanh',desc:'Hoàn thành 10 bài/ngày',color:'#f59e0b',earned:true},
+          {icon:'🔥',name:'Chuỗi 7 ngày',desc:'Học liên tục 7 ngày',color:'#ef4444',earned:true},
+          {icon:'🏆',name:'Top 10%',desc:'Xếp hạng toàn quốc',color:'#8b5cf6',earned:false},
+          {icon:'📚',name:'Đọc nhiều',desc:'Tải 50 tài liệu',color:'#0f4c81',earned:true},
+          {icon:'🎯',name:'Điểm 10',desc:'Đạt điểm tuyệt đối',color:'#10b981',earned:false},
+          {icon:'💎',name:'VIP Learner',desc:'Học 100 giờ',color:'#06b6d4',earned:false},
+        ].map(b=>`<div style="padding:12px;border-radius:10px;background:${b.earned?`rgba(${b.color==='#f59e0b'?'245,158,11':b.color==='#ef4444'?'239,68,68':'15,76,129'},.1)`:'var(--surface2)'};opacity:${b.earned?1:.4}">
+          <div style="font-size:2rem;margin-bottom:6px">${b.icon}</div>
+          <div style="font-size:.78rem;font-weight:700">${b.name}</div>
+          <div style="font-size:.68rem;color:var(--text3)">${b.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+// ============================================================
+// TEACHER VIEWS
+// ============================================================
+function viewTeacherDashboard() { return `
+<div class="stats-grid mb-24">
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(15,76,129,.1)">📚</div><div class="stat-label">Khóa học đang dạy</div><div class="stat-value">5</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(249,115,22,.1)">👥</div><div class="stat-label">Tổng học sinh</div><div class="stat-value">2.456</div><div class="stat-change up">↑ +124 tháng</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1)">📝</div><div class="stat-label">Bài chờ chấm</div><div class="stat-value">18</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(139,92,246,.1)">💬</div><div class="stat-label">Câu hỏi chưa trả lời</div><div class="stat-value">3</div></div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">📊 Hiệu suất học sinh</div></div>
+    <div class="card-body">
+      <div class="bar-chart" id="teacherChart"></div>
+      <div class="text-xs text-muted mt-8 text-center">Điểm trung bình theo bài kiểm tra</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">⏰ Việc cần làm hôm nay</div></div>
+    <div class="card-body">
+      ${[
+        {icon:'✏️',task:'Chấm 18 bài tự luận',urgent:true},
+        {icon:'💬',task:'Trả lời 3 câu hỏi học sinh',urgent:true},
+        {icon:'🎬',task:'Upload bài 49: Tích phân bội',urgent:false},
+        {icon:'📊',task:'Xem báo cáo tuần của lớp',urgent:false},
+      ].map(t=>`<div class="flex items-center gap-12" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:1.2rem">${t.icon}</span>
+        <span class="flex-1 text-sm">${t.task}</span>
+        ${t.urgent?'<span class="badge badge-red">Khẩn</span>':''}
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`; }
+
+function viewMonitorStudents() { return `
+<div class="stats-grid mb-20">
+  <div class="stat-card"><div class="stat-label">Đang hoạt động</div><div class="stat-value text-success">142</div></div>
+  <div class="stat-card"><div class="stat-label">Học sinh cần hỗ trợ</div><div class="stat-value text-danger">8</div></div>
+  <div class="stat-card"><div class="stat-label">Điểm TB lớp</div><div class="stat-value">7.2</div></div>
+  <div class="stat-card"><div class="stat-label">Tỉ lệ hoàn thành</div><div class="stat-value">68%</div></div>
+</div>
+<div class="card">
+  <div class="card-header"><div class="card-title">👥 Danh sách học sinh</div>
+    <div class="flex gap-8">
+      <select class="form-select" style="width:auto"><option>Tất cả khóa học</option><option>Toán THPTQG</option></select>
+      <button class="btn btn-primary btn-sm" onclick="toast('📊 Xuất báo cáo...')">📊 Xuất báo cáo</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Học sinh</th><th>Khóa học</th><th>Tiến độ</th><th>Điểm TB</th><th>Lần học cuối</th><th>Trạng thái</th><th></th></tr></thead>
+      <tbody>
+        ${[
+          {name:'Nguyễn Thị Lan',course:'Toán THPTQG',prog:85,score:8.5,last:'Hôm nay',status:'Tốt'},
+          {name:'Trần Văn Minh',course:'Toán THPTQG',prog:62,score:7.1,last:'Hôm qua',status:'Bình thường'},
+          {name:'Lê Thu Hương',course:'Toán THPTQG',prog:38,score:5.8,last:'3 ngày trước',status:'Cần hỗ trợ'},
+          {name:'Phạm Quốc Hùng',course:'Toán THPTQG',prog:91,score:9.2,last:'Hôm nay',status:'Xuất sắc'},
+        ].map(s=>`<tr>
+          <td><div class="fw-bold">${s.name}</div></td>
+          <td><span class="badge badge-blue">${s.course}</span></td>
+          <td><div class="flex items-center gap-8"><div class="progress-bar flex-1" style="min-width:80px"><div class="progress-fill" style="width:${s.prog}%"></div></div>${s.prog}%</div></td>
+          <td class="fw-bold text-primary">${s.score}</td>
+          <td class="text-muted text-sm">${s.last}</td>
+          <td><span class="badge ${s.status==='Xuất sắc'?'badge-purple':s.status==='Tốt'?'badge-green':s.status==='Cần hỗ trợ'?'badge-red':'badge-orange'}">${s.status}</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="toast('💬 Gửi tin nhắn cho học sinh...')">Nhắn tin</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`; }
+
+function viewTeacherCourses() { return `
+<div class="flex justify-between items-center mb-20">
+  <div class="text-muted">Tổng: 5 khóa học · 2.456 học sinh</div>
+  <div class="flex gap-8">
+    <button class="btn btn-ghost" onclick="renderView('createCourse')">➕ Tạo khóa học</button>
+  </div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px">
+  ${[
+    {icon:'📐',name:'Toán THPTQG – Luyện đề 2025',students:1250,lessons:48,published:true,rating:4.9},
+    {icon:'📐',name:'Toán THPTQG – Lý thuyết nâng cao',students:876,lessons:60,published:true,rating:4.8},
+    {icon:'📐',name:'Toán lớp 11 – Giải tích',students:330,lessons:32,published:false,rating:0},
+  ].map(c=>`<div class="card">
+    <div class="card-body flex items-center gap-16">
+      <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#0f4c81,#1a6db5);display:flex;align-items:center;justify-content:center;font-size:2rem">${c.icon}</div>
+      <div class="flex-1">
+        <div class="fw-bold">${c.name}</div>
+        <div class="text-sm text-muted">👥 ${c.students} học sinh · 📹 ${c.lessons} bài giảng ${c.rating?`· ⭐ ${c.rating}`:''}</div>
+      </div>
+      <div class="flex gap-8 items-center">
+        <span class="badge ${c.published?'badge-green':'badge-orange'}">${c.published?'Đã xuất bản':'Nháp'}</span>
+        <button class="btn btn-ghost btn-sm" onclick="toast('✏️ Chỉnh sửa khóa học...')">✏️ Sửa</button>
+        <button class="btn btn-ghost btn-sm" onclick="toast('👁️ Xem trước...')">👁️ Xem</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="showModal('deleteConfirmModal')">🗑️</button>
+      </div>
+    </div>
+  </div>`).join('')}
+</div>`; }
+
+function viewCreateCourse() { return `
+<div class="card" style="max-width:720px">
+  <div class="card-header"><div class="card-title">➕ Tạo khóa học mới</div></div>
+  <div class="card-body">
+    <div class="form-group"><label class="form-label">Tên khóa học *</label><input class="form-input" placeholder="VD: Toán THPTQG – Luyện đề 2025"></div>
+    <div class="form-group"><label class="form-label">Môn học *</label>
+      <select class="form-select"><option>Toán học</option><option>Ngữ Văn</option><option>Tiếng Anh</option><option>Vật lý</option><option>Hóa học</option><option>Sinh học</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Mô tả khóa học</label><textarea class="form-textarea" placeholder="Mô tả nội dung và mục tiêu khóa học..."></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Trình độ</label><select class="form-select"><option>Cơ bản</option><option>Trung cấp</option><option selected>Nâng cao</option></select></div>
+      <div class="form-group"><label class="form-label">Giá (đ)</label><input class="form-input" placeholder="0 = Miễn phí" value="299000"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Ảnh bìa khóa học</label>
+      <div class="upload-zone" onclick="toast('📁 Chọn file ảnh...')">
+        <div class="upload-icon">🖼️</div>
+        <div class="fw-bold">Kéo thả hoặc nhấn để upload</div>
+        <div class="text-sm text-muted mt-4">PNG, JPG · Tối đa 5MB</div>
+      </div>
+    </div>
+    <div class="flex gap-10 mt-8">
+      <button class="btn btn-ghost" onclick="toast('💾 Đã lưu nháp')">Lưu nháp</button>
+      <button class="btn btn-primary flex-1" onclick="toast('✅ Đã tạo khóa học!','success');renderView('teacherCourses')">✅ Tạo khóa học</button>
+    </div>
+  </div>
+</div>`; }
+
+function viewUploadVideo() { return `
+<div class="card" style="max-width:720px">
+  <div class="card-header"><div class="card-title">🎬 Upload video bài giảng</div></div>
+  <div class="card-body">
+    <div class="form-group"><label class="form-label">Khóa học</label><select class="form-select"><option>Toán THPTQG – Luyện đề 2025</option><option>Toán THPTQG – Lý thuyết nâng cao</option></select></div>
+    <div class="form-group"><label class="form-label">Tên bài giảng</label><input class="form-input" placeholder="VD: Bài 49: Phương trình đạo hàm"></div>
+    <div class="form-group"><label class="form-label">Upload video *</label>
+      <div class="upload-zone" id="videoUploadZone" onclick="simulateUpload()">
+        <div class="upload-icon">🎬</div>
+        <div class="fw-bold">Kéo thả video hoặc nhấn để chọn</div>
+        <div class="text-sm text-muted mt-4">MP4, MOV · Tối đa 2GB</div>
+      </div>
+      <div id="uploadProgress" style="display:none;margin-top:12px">
+        <div class="flex justify-between text-sm mb-4"><span>Đang upload: bai49.mp4</span><span id="uploadPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="uploadBar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Mô tả bài học</label><textarea class="form-textarea" placeholder="Tóm tắt nội dung bài học..."></textarea></div>
+    <div class="form-group"><label class="form-label">Thêm câu hỏi trong video</label>
+      <button class="btn btn-ghost btn-block" onclick="toast('➕ Thêm câu hỏi tại vị trí video...')">➕ Thêm câu hỏi tương tác</button>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" onclick="toast('✅ Bài giảng đã được upload!','success')">✅ Publish bài giảng</button>
+  </div>
+</div>`; }
+
+function viewUploadMaterials() { return `
+<div class="card" style="max-width:720px">
+  <div class="card-header"><div class="card-title">📁 Upload tài liệu học tập</div></div>
+  <div class="card-body">
+    <div class="form-group"><label class="form-label">Khóa học</label><select class="form-select"><option>Toán THPTQG – Luyện đề 2025</option></select></div>
+    <div class="form-group"><label class="form-label">Upload tài liệu</label>
+      <div class="upload-zone" onclick="toast('📁 Chọn tài liệu...')">
+        <div class="upload-icon">📄</div>
+        <div class="fw-bold">PDF, Word, PowerPoint, Excel</div>
+        <div class="text-sm text-muted mt-4">Nhiều file · Tối đa 50MB mỗi file</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="card-title">📂 Tài liệu đã upload</div></div>
+      <div class="card-body">
+        ${['Lý thuyết tích phân bội.pdf','Bài tập có lời giải.pdf','Tóm tắt công thức.docx'].map(f=>`<div class="flex items-center justify-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div class="flex items-center gap-8"><span>📄</span><span class="text-sm">${f}</span></div>
+          <div class="flex gap-8">
+            <button class="btn btn-ghost btn-sm" onclick="toast('👁️ Xem trước...')">Xem</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="toast('🗑️ Đã xóa file!')">Xóa</button>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+function viewCreateAssignment() { return `
+<div class="card" style="max-width:800px">
+  <div class="card-header"><div class="card-title">📝 Tạo bài tập</div></div>
+  <div class="card-body">
+    <div class="form-group"><label class="form-label">Tiêu đề bài tập</label><input class="form-input" placeholder="VD: Bài tập tích phân – Tuần 8"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Khóa học</label><select class="form-select"><option>Toán THPTQG</option></select></div>
+      <div class="form-group"><label class="form-label">Hạn nộp</label><input class="form-input" type="date"></div>
+      <div class="form-group"><label class="form-label">Loại bài</label><select class="form-select"><option>Trắc nghiệm</option><option>Tự luận</option><option>Hỗn hợp</option></select></div>
+    </div>
+    <div style="border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px" id="questionsContainer">
+      <div class="fw-bold mb-12">Câu hỏi 1</div>
+      <div class="form-group"><label class="form-label">Nội dung câu hỏi</label><textarea class="form-textarea" style="min-height:70px" placeholder="Nhập câu hỏi..."></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input class="form-input" placeholder="A. Đáp án A">
+        <input class="form-input" placeholder="B. Đáp án B">
+        <input class="form-input" placeholder="C. Đáp án C">
+        <input class="form-input" placeholder="D. Đáp án D (đúng)">
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-block mb-16" onclick="toast('➕ Thêm câu hỏi mới')">➕ Thêm câu hỏi</button>
+    <div class="flex gap-10">
+      <button class="btn btn-ghost" onclick="toast('💾 Đã lưu nháp')">Lưu nháp</button>
+      <button class="btn btn-primary flex-1" onclick="toast('✅ Đã tạo bài tập!','success')">✅ Giao bài tập</button>
+    </div>
+  </div>
+</div>`; }
+
+function viewCreateExam() { return `
+<div class="card" style="max-width:800px">
+  <div class="card-header"><div class="card-title">📋 Tạo đề thi / đề thi thử</div></div>
+  <div class="card-body">
+    <div class="form-group"><label class="form-label">Tên đề thi</label><input class="form-input" placeholder="VD: Đề thi thử THPTQG 2025 – Lần 1"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Môn thi</label><select class="form-select"><option>Toán học</option><option>Ngữ Văn</option><option>Tiếng Anh</option></select></div>
+      <div class="form-group"><label class="form-label">Thời gian (phút)</label><input class="form-input" type="number" value="90"></div>
+      <div class="form-group"><label class="form-label">Số câu hỏi</label><input class="form-input" type="number" value="40"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Cấu trúc đề</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="padding:12px;border:1.5px solid var(--border);border-radius:8px">
+          <div class="fw-bold mb-4">Trắc nghiệm</div>
+          <input class="form-input" value="40 câu · 10 điểm">
+        </div>
+        <div style="padding:12px;border:1.5px solid var(--border);border-radius:8px">
+          <div class="fw-bold mb-4">Tự luận (nếu có)</div>
+          <input class="form-input" placeholder="0 câu">
+        </div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Tạo câu hỏi</label>
+      <div class="tabs">
+        <div class="tab active">✍️ Nhập thủ công</div>
+        <div class="tab" onclick="toast('📤 Import từ file Word...')">📤 Import file</div>
+        <div class="tab" onclick="toast('🤖 AI tạo câu hỏi...')">🤖 AI tạo hộ</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:16px;text-align:center;color:var(--text2)">
+        Nhập câu hỏi theo định dạng hoặc kéo thả file Word
+      </div>
+    </div>
+    <div class="flex gap-10">
+      <button class="btn btn-ghost" onclick="toast('👁️ Xem trước đề...')">👁️ Xem trước</button>
+      <button class="btn btn-ghost" onclick="toast('💾 Lưu nháp')">Lưu nháp</button>
+      <button class="btn btn-primary flex-1" onclick="toast('✅ Đề thi đã được publish!','success')">✅ Xuất bản đề thi</button>
+    </div>
+  </div>
+</div>`; }
+
+function viewGradeEssay() { return `
+<div class="grid-2">
+  <div>
+    <div class="card mb-16">
+      <div class="card-header"><div class="card-title">📋 Bài chờ chấm (18)</div></div>
+      <div style="max-height:400px;overflow-y:auto">
+        ${['Nguyễn Thị Lan','Trần Văn Minh','Lê Thu Hương','Phạm Quốc Hùng','Vũ Thị Mai'].map((n,i)=>`<div class="course-list-item" style="padding:10px 16px;cursor:pointer;background:${i===0?'rgba(15,76,129,.06)':''}" onclick="this.closest('.course-list-item').style.background='rgba(15,76,129,.06)'">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">👤</div>
+          <div><div class="fw-bold text-sm">${n}</div><div class="text-xs text-muted">Bài tự luận Toán · Nộp 30 phút trước</div></div>
+          <span class="badge badge-orange">Chưa chấm</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">✏️ Chấm bài – Nguyễn Thị Lan</div></div>
+      <div class="card-body">
+        <div class="text-sm text-muted mb-8">Câu hỏi: Phân tích nhân vật Chí Phèo trong tác phẩm của Nam Cao</div>
+        <div class="essay-submission">Chí Phèo là một nhân vật điển hình cho bi kịch của người nông dân trong xã hội cũ. Từ một người lương thiện, anh bị đẩy vào con đường tha hóa bởi chế độ xã hội tàn bạo và sự tàn nhẫn của địa chủ Bá Kiến. Qua nhân vật này, Nam Cao đã lên án mạnh mẽ xã hội thực dân phong kiến...</div>
+        <div class="form-group">
+          <label class="form-label">Điểm số (thang 10)</label>
+          <input class="form-input" type="number" min="0" max="10" value="8.5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nhận xét của giáo viên</label>
+          <textarea class="form-textarea" placeholder="Nhập nhận xét chi tiết...">Bài làm tốt, phân tích nhân vật có chiều sâu. Cần bổ sung thêm dẫn chứng cụ thể từ tác phẩm.</textarea>
+        </div>
+        <div class="flex gap-10">
+          <button class="btn btn-ghost" onclick="toast('⏭ Bài tiếp theo...')">Bỏ qua</button>
+          <button class="btn btn-primary flex-1" onclick="toast('✅ Đã chấm điểm!','success')">✅ Lưu điểm & Gửi nhận xét</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+function viewAnswerQuestions() { return `
+<div style="display:flex;flex-direction:column;gap:16px">
+  ${[
+    {student:'Nguyễn Văn An',course:'Toán THPTQG',question:'Thầy ơi, tại sao khi tính tích phân ∫sin²x dx lại phải dùng công thức hạ bậc ạ? Em không hiểu tại sao không tích phân trực tiếp được.',time:'30 phút trước',answered:false},
+    {student:'Trần Thị Bình',course:'Toán THPTQG',question:'Em không hiểu phần tích phân bội khi đổi thứ tự lấy tích phân, thầy có thể giải thích thêm được không ạ?',time:'2 giờ trước',answered:false},
+    {student:'Lê Minh Đức',course:'Toán THPTQG',question:'Bài tập 15 trang 48 trong tài liệu, em làm ra kết quả khác đáp án, thầy có thể xem lại giúp em không ạ?',time:'1 ngày trước',answered:true},
+  ].map(q=>`<div class="card ${!q.answered?'':''}" style="${!q.answered?'border-left:3px solid var(--accent)':''}">
+    <div class="card-body">
+      <div class="flex items-center gap-10 mb-12">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center">👤</div>
+        <div>
+          <div class="fw-bold">${q.student}</div>
+          <div class="text-xs text-muted">${q.course} · ${q.time}</div>
+        </div>
+        <span class="badge ${q.answered?'badge-green':'badge-orange'}" style="margin-left:auto">${q.answered?'Đã trả lời':'Chưa trả lời'}</span>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-size:.88rem;margin-bottom:12px">${q.question}</div>
+      ${!q.answered?`<div class="form-group"><textarea class="form-textarea" style="min-height:80px" placeholder="Nhập câu trả lời..."></textarea></div>
+      <button class="btn btn-primary btn-sm" onclick="toast('✅ Đã gửi câu trả lời!','success')">✅ Gửi câu trả lời</button>`:
+      `<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px;font-size:.88rem">
+        💬 Bạn đã trả lời: "Hàm sin²x không có nguyên hàm đơn giản dạng sơ cấp..."
+      </div>`}
+    </div>
+  </div>`).join('')}
+</div>`; }
+
+function viewStudentResultsTeacher() { return `
+<div class="card">
+  <div class="card-header"><div class="card-title">📈 Kết quả học sinh</div>
+    <div class="flex gap-8">
+      <select class="form-select" style="width:auto"><option>Toán THPTQG – Luyện đề 2025</option></select>
+      <button class="btn btn-primary btn-sm" onclick="toast('📊 Xuất Excel...')">📊 Xuất</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Học sinh</th><th>Điểm Quiz 1</th><th>Điểm Quiz 2</th><th>Đề thi thử</th><th>TB</th><th>Xếp loại</th></tr></thead>
+      <tbody>
+        ${[
+          ['Nguyễn Thị Lan',9,8.5,8.8,8.8,'Giỏi'],
+          ['Trần Văn Minh',7,7.5,7.2,7.2,'Khá'],
+          ['Lê Thu Hương',5.5,6,5.8,5.8,'Trung bình'],
+          ['Phạm Quốc Hùng',9.5,9,9.2,9.2,'Xuất sắc'],
+        ].map(r=>`<tr>
+          <td class="fw-bold">${r[0]}</td>
+          <td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td>
+          <td><span class="fw-bold text-primary">${r[4]}</span></td>
+          <td><span class="badge ${r[5]==='Xuất sắc'?'badge-purple':r[5]==='Giỏi'?'badge-green':r[5]==='Khá'?'badge-blue':'badge-orange'}">${r[5]}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`; }
+
+// ============================================================
+// ADMIN VIEWS
+// ============================================================
+function viewAdminDashboard() { return `
+<div class="stats-grid mb-24">
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(15,76,129,.1)">👥</div><div class="stat-label">Tổng tài khoản</div><div class="stat-value">52.341</div><div class="stat-change up">↑ +1.2K tháng</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(249,115,22,.1)">💰</div><div class="stat-label">Doanh thu tháng</div><div class="stat-value">142M đ</div><div class="stat-change up">↑ +18%</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1)">📚</div><div class="stat-label">Khóa học hoạt động</div><div class="stat-value">218</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(239,68,68,.1)">🚨</div><div class="stat-label">Báo cáo vi phạm</div><div class="stat-value">5</div><div class="stat-change down">Cần xử lý</div></div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">📊 Doanh thu 6 tháng</div></div>
+    <div class="card-body"><div class="bar-chart" id="adminRevenueChart"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">⚡ Hệ thống</div></div>
+    <div class="card-body">
+      ${[
+        {label:'CPU',pct:34,color:'var(--primary)'},
+        {label:'RAM',pct:67,color:'var(--accent)'},
+        {label:'Storage',pct:45,color:'var(--success)'},
+        {label:'Network',pct:22,color:'var(--purple)'},
+      ].map(s=>`<div style="margin-bottom:12px">
+        <div class="flex justify-between text-sm mb-4"><span>${s.label}</span><span class="fw-bold">${s.pct}%</span></div>
+        <div class="progress-bar"><div style="height:100%;border-radius:4px;background:${s.color};width:${s.pct}%"></div></div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`; }
+
+function viewManageAccounts() { return `
+<div class="flex justify-between mb-20">
+  <div class="tabs" style="margin-bottom:0">
+    <div class="tab active">Tất cả (52.341)</div>
+    <div class="tab">Học sinh (49.876)</div>
+    <div class="tab">Giảng viên (112)</div>
+    <div class="tab">Admin (8)</div>
+    <div class="tab">Bị khóa (23)</div>
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="toast('➕ Tạo tài khoản mới...')">➕ Tạo tài khoản</button>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>
+      <tbody>
+        ${[
+          {name:'Nguyễn Thị Lan',email:'lan@gmail.com',role:'Học sinh',status:'Hoạt động',date:'12/01/2025'},
+          {name:'ThS. Nguyễn T.Tùng',email:'tung@eduviet.vn',role:'Giảng viên',status:'Hoạt động',date:'01/01/2024'},
+          {name:'Trần Văn Minh',email:'minh@gmail.com',role:'Học sinh',status:'Hoạt động',date:'15/03/2025'},
+          {name:'Lê Thu Hương',email:'huong@gmail.com',role:'Học sinh',status:'Bị khóa',date:'20/02/2025'},
+        ].map(u=>`<tr>
+          <td class="fw-bold">${u.name}</td>
+          <td class="text-muted">${u.email}</td>
+          <td><span class="badge ${u.role==='Giảng viên'?'badge-purple':u.role==='Admin'?'badge-red':'badge-blue'}">${u.role}</span></td>
+          <td><span class="badge ${u.status==='Hoạt động'?'badge-green':'badge-red'}">${u.status}</span></td>
+          <td class="text-muted">${u.date}</td>
+          <td><div class="flex gap-6">
+            <button class="btn btn-ghost btn-sm" onclick="toast('✏️ Sửa tài khoản...')">Sửa</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="toast('🔒 Đã ${u.status==='Hoạt động'?'khóa':'mở khóa'} tài khoản!')">${u.status==='Hoạt động'?'Khóa':'Mở khóa'}</button>
+          </div></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`; }
+
+function viewManageCategories() { return `
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">📂 Danh mục môn học</div><button class="btn btn-primary btn-sm" onclick="toast('➕ Thêm danh mục')">➕ Thêm</button></div>
+    <div class="card-body">
+      ${['Toán học','Ngữ Văn','Tiếng Anh','Vật lý','Hóa học','Sinh học','Lịch sử','Địa lý','GDCD','Tin học'].map((s,i)=>`<div class="flex items-center justify-between" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div class="flex items-center gap-10"><span>📚</span><span class="fw-bold">${s}</span><span class="text-xs text-muted">${[218,156,203,142,138,95,72,68,45,38][i]} khóa</span></div>
+        <div class="flex gap-6">
+          <button class="btn btn-ghost btn-sm" onclick="toast('✏️ Sửa')">✏️</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="toast('🗑️ Xóa')">🗑️</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🏷️ Tags & Nhãn</div></div>
+    <div class="card-body">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        ${['THPTQG','Lớp 12','Lớp 11','Lớp 10','Nâng cao','Cơ bản','Luyện đề','Lý thuyết','Bài tập','Miễn phí'].map(t=>`<div class="chip">${t} <span onclick="toast('🗑️ Xóa tag')" style="cursor:pointer;color:var(--text3);margin-left:4px">✕</span></div>`).join('')}
+      </div>
+      <div class="flex gap-8">
+        <input class="form-input flex-1" placeholder="Thêm tag mới...">
+        <button class="btn btn-primary" onclick="toast('✅ Đã thêm tag!')">Thêm</button>
+      </div>
+    </div>
+  </div>
+</div>`; }
+
+function viewApproveContent() { return `
+<div style="display:flex;flex-direction:column;gap:16px">
+  ${[
+    {title:'Khóa học Vật lý – Sóng cơ học',teacher:'ThS. Lê Hoàng Minh',type:'Khóa học mới',time:'2 giờ trước'},
+    {title:'Đề thi thử THPTQG 2025 – Lần 2',teacher:'ThS. Nguyễn Thanh Tùng',type:'Đề thi',time:'5 giờ trước'},
+    {title:'Tài liệu: 500 câu hỏi tiếng Anh',teacher:'ThS. Phạm Thu Hương',type:'Tài liệu',time:'1 ngày trước'},
+  ].map(c=>`<div class="card">
+    <div class="card-body">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="fw-bold">${c.title}</div>
+          <div class="text-sm text-muted">👨‍🏫 ${c.teacher} · <span class="badge badge-orange">${c.type}</span> · ${c.time}</div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-ghost btn-sm" onclick="toast('👁️ Xem trước nội dung...')">👁️ Xem</button>
+          <button class="btn btn-danger btn-sm" onclick="toast('❌ Đã từ chối nội dung!')">Từ chối</button>
+          <button class="btn btn-success btn-sm" onclick="toast('✅ Đã duyệt nội dung!','success')">✅ Duyệt</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('')}
+</div>`; }
+
+function viewHandleReports() { return `
+<div style="display:flex;flex-direction:column;gap:16px">
+  ${[
+    {report:'Video bài giảng có nội dung không phù hợp',reporter:'Nguyễn Văn A',course:'Hóa học – Bài 15',severity:'Cao',time:'1 giờ trước'},
+    {report:'Bình luận xúc phạm học sinh khác',reporter:'Trần Thị B',course:'Toán THPTQG',severity:'Trung bình',time:'3 giờ trước'},
+    {report:'Khóa học có nội dung sai kiến thức',reporter:'Lê Văn C',course:'Vật lý – Sóng',severity:'Thấp',time:'1 ngày trước'},
+  ].map(r=>`<div class="card" style="border-left:3px solid ${r.severity==='Cao'?'var(--danger)':r.severity==='Trung bình'?'var(--accent)':'var(--gold)'}">
+    <div class="card-body">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-8 mb-4">
+            <span class="badge ${r.severity==='Cao'?'badge-red':r.severity==='Trung bình'?'badge-orange':'badge-blue'}">Mức ${r.severity}</span>
+            <span class="text-xs text-muted">${r.time}</span>
+          </div>
+          <div class="fw-bold">${r.report}</div>
+          <div class="text-sm text-muted">📚 ${r.course} · Báo cáo bởi: ${r.reporter}</div>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-ghost btn-sm" onclick="toast('👁️ Xem nội dung bị báo cáo...')">Xem</button>
+          <button class="btn btn-danger btn-sm" onclick="toast('🚫 Đã xóa nội dung vi phạm!')">Xóa nội dung</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('✅ Đã bỏ qua báo cáo')">Bỏ qua</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('')}
+</div>`; }
+
+function viewStatistics() { return `
+<div class="stats-grid mb-24">
+  <div class="stat-card"><div class="stat-label">Doanh thu tháng 5</div><div class="stat-value">142M đ</div><div class="stat-change up">↑ +18%</div></div>
+  <div class="stat-card"><div class="stat-label">Học sinh mới</div><div class="stat-value">1.247</div><div class="stat-change up">↑ +12%</div></div>
+  <div class="stat-card"><div class="stat-label">Lượt xem video</div><div class="stat-value">89.432</div><div class="stat-change up">↑ +24%</div></div>
+  <div class="stat-card"><div class="stat-label">Tỉ lệ hoàn thành</div><div class="stat-value">68%</div><div class="stat-change up">↑ +3%</div></div>
+</div>
+<div class="card">
+  <div class="card-header"><div class="card-title">💰 Top khóa học doanh thu cao</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Khóa học</th><th>Học sinh</th><th>Giá</th><th>Doanh thu</th><th>Tỉ lệ hoàn thành</th></tr></thead>
+      <tbody>
+        ${[
+          ['Toán THPTQG – Luyện đề 2025','12.500','299.000đ','37.4M đ',73],
+          ['Tiếng Anh – Chinh phục 9+','15.000','Miễn phí','0đ',60],
+          ['Vật lý – Sóng & Điện từ','9.100','259.000đ','23.6M đ',55],
+          ['Hóa học – Lý thuyết','7.800','279.000đ','21.8M đ',48],
+        ].map(r=>`<tr>
+          <td class="fw-bold">${r[0]}</td>
+          <td>${r[1]}</td>
+          <td>${r[2]}</td>
+          <td class="fw-bold text-success">${r[3]}</td>
+          <td><div class="flex items-center gap-8"><div class="progress-bar flex-1" style="min-width:60px"><div class="progress-fill" style="width:${r[4]}%"></div></div>${r[4]}%</div></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`; }
+
+function viewUIConfig() { return `
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">🎨 Cấu hình giao diện</div></div>
+    <div class="card-body">
+      <div class="form-group"><label class="form-label">Logo hệ thống</label>
+        <div class="upload-zone" onclick="toast('📁 Upload logo...')">
+          <div style="font-size:2rem">🖼️</div>
+          <div class="text-sm">Upload logo mới</div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Màu chủ đạo</label>
+        <div class="flex gap-10">
+          ${['#0f4c81','#7c3aed','#065f46','#c2410c'].map(c=>`<div onclick="toast('🎨 Đã đổi màu thành ${c}')" style="width:36px;height:36px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c==='#0f4c81'?'#fff':'transparent'}"></div>`).join('')}
+          <input type="color" style="width:36px;height:36px;border-radius:50%;border:none;cursor:pointer" value="#0f4c81">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Tên hệ thống</label><input class="form-input" value="EduViet"></div>
+      <div class="form-group"><label class="form-label">Slogan</label><input class="form-input" value="Học thông minh · Đỗ đại học"></div>
+      <button class="btn btn-primary btn-block" onclick="toast('✅ Đã lưu cấu hình!','success')">Lưu thay đổi</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📢 Thông báo hệ thống</div><button class="btn btn-primary btn-sm" onclick="toast('📢 Gửi thông báo...')">Tạo mới</button></div>
+    <div class="card-body">
+      <div class="form-group"><label class="form-label">Nội dung banner</label><textarea class="form-textarea" style="min-height:70px">🎉 Khuyến mãi tháng 6: Giảm 30% tất cả khóa học! Dùng mã HOCSINH30</textarea></div>
+      <div class="form-group"><label class="form-label">Hiển thị</label>
+        <label><input type="checkbox" checked> Hiển thị banner trên trang chủ</label>
+      </div>
+      <div class="form-group"><label class="form-label">Màu banner</label><select class="form-select"><option>Xanh (Primary)</option><option>Cam (Accent)</option><option>Đỏ (Alert)</option></select></div>
+      <button class="btn btn-primary btn-block" onclick="toast('✅ Đã cập nhật banner!','success')">Cập nhật</button>
+    </div>
+  </div>
+</div>`; }
+
+function viewBackupRestore() { return `
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><div class="card-title">💾 Sao lưu dữ liệu</div></div>
+    <div class="card-body">
+      <div style="background:var(--surface2);border-radius:8px;padding:16px;margin-bottom:16px">
+        <div class="fw-bold mb-4">Sao lưu tự động</div>
+        <div class="text-sm text-muted">Mỗi ngày lúc 2:00 AM · Lưu trữ 30 ngày</div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" checked> Bật sao lưu tự động</label>
+      </div>
+      <button class="btn btn-primary btn-block mb-10" onclick="simulateBackup()">💾 Sao lưu ngay</button>
+      <div id="backupProgress" style="display:none">
+        <div class="flex justify-between text-sm mb-4"><span>Đang sao lưu...</span><span id="backupPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="backupBar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">🕐 Lịch sử sao lưu</div></div>
+    <div class="card-body">
+      ${[
+        {date:'24/05/2025 02:00',size:'4.2 GB',status:'Thành công'},
+        {date:'23/05/2025 02:00',size:'4.1 GB',status:'Thành công'},
+        {date:'22/05/2025 02:00',size:'4.0 GB',status:'Thành công'},
+      ].map(b=>`<div class="flex items-center justify-between" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div class="fw-bold text-sm">${b.date}</div>
+          <div class="text-xs text-muted">${b.size}</div>
+        </div>
+        <div class="flex items-center gap-8">
+          <span class="badge badge-green">${b.status}</span>
+          <button class="btn btn-ghost btn-sm" onclick="toast('🔄 Đang khôi phục backup...')">Khôi phục</button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`; }
+
+function viewAuditLogs() { return `
+<div class="card">
+  <div class="card-header"><div class="card-title">📋 Nhật ký hệ thống</div>
+    <div class="flex gap-8">
+      <select class="form-select" style="width:auto"><option>Tất cả hành động</option><option>Đăng nhập</option><option>Duyệt nội dung</option><option>Quản lý tài khoản</option></select>
+      <button class="btn btn-ghost btn-sm" onclick="toast('📊 Xuất log...')">📊 Xuất</button>
+    </div>
+  </div>
+  <div class="card-body" style="padding:0">
+    ${[
+      {icon:'✅',action:'Duyệt khóa học "Vật lý – Sóng"',user:'Admin Tuấn',ip:'192.168.1.1',time:'24/05/2025 10:32'},
+      {icon:'🔒',action:'Khóa tài khoản: spam@gmail.com',user:'Admin Tuấn',ip:'192.168.1.1',time:'24/05/2025 09:15'},
+      {icon:'🔑',action:'Đăng nhập thành công',user:'Admin Tuấn',ip:'192.168.1.1',time:'24/05/2025 08:00'},
+      {icon:'⚙️',action:'Cập nhật cấu hình hệ thống',user:'Admin Hùng',ip:'10.0.0.5',time:'23/05/2025 17:45'},
+      {icon:'💾',action:'Thực hiện backup dữ liệu',user:'System',ip:'localhost',time:'23/05/2025 02:00'},
+      {icon:'❌',action:'Từ chối nội dung vi phạm',user:'Admin Tuấn',ip:'192.168.1.1',time:'22/05/2025 14:20'},
+    ].map(l=>`<div class="audit-log-item">
+      <span style="font-size:1.1rem">${l.icon}</span>
+      <div class="flex-1">
+        <div class="fw-bold">${l.action}</div>
+        <div class="text-xs text-muted">👤 ${l.user} · 🌐 ${l.ip}</div>
+      </div>
+      <div class="audit-time">${l.time}</div>
+    </div>`).join('')}
+  </div>
+</div>`; }
+
+// ============================================================
+// INTERACTIVE JS
+// ============================================================
+function initViewJS(view) {
+  if(view==='dashboard'||view==='teacherDashboard') {
+    setTimeout(()=>{
+      const chartEl = document.getElementById('weekChart') || document.getElementById('teacherChart') || document.getElementById('adminRevenueChart');
+      if(chartEl) {
+        const days = view==='adminDashboard' ? ['T1','T2','T3','T4','T5'] : ['T2','T3','T4','T5','T6','T7','CN'];
+        const values = [60,45,80,55,90,70,65];
+        const colors = ['var(--primary)','var(--accent)','var(--primary)','var(--accent2)','var(--primary)','var(--accent)','var(--primary)'];
+        chartEl.innerHTML = days.map((d,i)=>`
+          <div class="bar" style="background:${colors[i]};height:${values[i]}%;opacity:.85">
+            <div class="bar-value" style="color:${colors[i]}">${values[i]}%</div>
+            <div class="bar-label">${d}</div>
+          </div>`).join('');
+      }
+    }, 100);
+  }
+  if(view==='adminDashboard') {
+    setTimeout(()=>{
+      const el = document.getElementById('adminRevenueChart');
+      if(el) {
+        const months = ['T1','T2','T3','T4','T5','T6'];
+        const vals = [75,82,65,90,100,95];
+        el.innerHTML = months.map((m,i)=>`<div class="bar" style="background:var(--primary);height:${vals[i]}%;opacity:.85">
+          <div class="bar-value" style="color:var(--primary)">${[105,118,95,132,142,138][i]}M</div>
+          <div class="bar-label">${m}</div>
+        </div>`).join('');
+      }
+    },100);
+  }
+}
+
+function switchTab(el, activeId) {
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const allTabs = ['quizTab1','quizTab2','quizTab3'];
+  allTabs.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const target = document.getElementById(activeId);
+  if(target) target.style.display='block';
+}
+
+function checkInVideo(el, correct) {
+  document.querySelectorAll('.quiz-option').forEach(o=>{
+    o.onclick=null;
+    o.classList.remove('selected');
+  });
+  el.classList.add(correct?'correct':'wrong');
+  if(correct) toast('✅ Chính xác! Tiếp tục video.','success');
+  else toast('❌ Sai rồi! Đáp án đúng là B: 1/3','error');
+}
+
+let quizAnswered = false;
+function startQuiz() {
+  document.getElementById('mainContent').innerHTML = `
+  <div class="card" style="max-width:700px;margin:0 auto">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📝 Quiz Toán – Tích phân bội</div>
+        <div class="text-sm text-muted">Câu 1/15 · Còn lại: 19:45</div>
+      </div>
+      <div class="fw-bold text-accent">⏱ 20:00</div>
+    </div>
+    <div class="card-body">
+      <div class="quiz-question">Tính tích phân: ∫₀² (2x + 1) dx</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="answerQuiz(this,false)"><div class="quiz-opt-circle">A</div>4</div>
+        <div class="quiz-option" onclick="answerQuiz(this,true)"><div class="quiz-opt-circle">B</div>6 ✓</div>
+        <div class="quiz-option" onclick="answerQuiz(this,false)"><div class="quiz-opt-circle">C</div>8</div>
+        <div class="quiz-option" onclick="answerQuiz(this,false)"><div class="quiz-opt-circle">D</div>3</div>
+      </div>
+      <div class="flex justify-between mt-24">
+        <button class="btn btn-ghost" onclick="renderView('quizzes')">← Thoát</button>
+        <div class="flex gap-10">
+          <button class="btn btn-ghost">Câu trước</button>
+          <button class="btn btn-primary" onclick="nextQuizQ()">Câu tiếp →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function answerQuiz(el, correct) {
+  document.querySelectorAll('.quiz-option').forEach(o=>{o.onclick=null;});
+  el.classList.add(correct?'correct':'wrong');
+  if(correct) toast('✅ Đúng rồi!','success');
+  else toast('❌ Sai! Đáp án đúng là B.','error');
+}
+
+function nextQuizQ() { toast('➡ Câu tiếp theo...'); renderView('quizzes'); }
+
+function startMockExam() {
+  toast('📋 Đang tải đề thi... Chúc bạn làm bài tốt!');
+  setTimeout(()=>renderView('quizzes'),500);
+}
+
+// AI Chat
+function sendAI() {
+  const input = document.getElementById('aiInput');
+  if(!input || !input.value.trim()) return;
+  addAIMsg(input.value, 'user');
+  const q = input.value;
+  input.value = '';
+  setTimeout(()=>{
+    const responses = {
+      default: `Đây là một câu hỏi hay! Để trả lời câu hỏi của bạn về **"${q}"**, tôi sẽ giải thích từng bước:\n\n1. **Khái niệm cơ bản**: ...\n2. **Phương pháp**: ...\n3. **Ví dụ minh họa**: ...\n\nBạn có muốn tôi giải thích chi tiết hơn không? 😊`,
+    };
+    addAIMsg(responses.default, 'ai');
+  }, 800);
+}
+
+function askAI(q) {
+  renderView('aiAssistant');
+  setTimeout(()=>{
+    const input = document.getElementById('aiInput');
+    if(input) { input.value = q; sendAI(); }
+  }, 200);
+}
+
+function addAIMsg(text, role) {
+  const msgs = document.getElementById('aiMessages');
+  if(!msgs) return;
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role}`;
+  div.innerHTML = `
+    <div class="ai-msg-avatar" style="background:${role==='ai'?'linear-gradient(135deg,var(--primary),var(--accent2))':'var(--surface2)'}">
+      ${role==='ai'?'🤖':'👨‍🎓'}
+    </div>
+    <div class="ai-msg-bubble">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Entry test
+let entryStep = 1;
+function nextEntryStep(n) {
+  document.getElementById(`entryStep${entryStep}`).classList.remove('active');
+  entryStep = n;
+  document.getElementById(`entryStep${n}`).classList.add('active');
+  const dots = document.querySelectorAll('.entry-prog-dot');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(i+1 < n) d.classList.add('done');
+    if(i+1 === n) d.classList.add('active');
+  });
+}
+
+function selectEntryOpt(el, correct) {
+  el.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Upload simulation
+function simulateUpload() {
+  const zone = document.getElementById('videoUploadZone');
+  const prog = document.getElementById('uploadProgress');
+  const bar = document.getElementById('uploadBar');
+  const pct = document.getElementById('uploadPct');
+  if(!zone||!prog) return;
+  zone.style.display='none';
+  prog.style.display='block';
+  let p=0;
+  const iv=setInterval(()=>{
+    p+=5; bar.style.width=p+'%'; pct.textContent=p+'%';
+    if(p>=100) { clearInterval(iv); toast('✅ Upload video thành công!','success'); }
+  },200);
+}
+
+function simulateBackup() {
+  const prog = document.getElementById('backupProgress');
+  const bar = document.getElementById('backupBar');
+  const pct = document.getElementById('backupPct');
+  if(!prog) return;
+  prog.style.display='block';
+  let p=0;
+  const iv=setInterval(()=>{
+    p+=3; bar.style.width=p+'%'; pct.textContent=p+'%';
+    if(p>=100) { clearInterval(iv); toast('✅ Backup hoàn tất!','success'); }
+  },100);
+}
+
+function togglePlay(btn) {
+  btn.textContent = btn.textContent==='⏸'?'▶':'⏸';
+}
+
+// Demo login
+window.addEventListener('DOMContentLoaded', ()=>{
+  // pre-fill notifs
+  setupNotifs && setupNotifs();
+});
+</script>
+</body>
+</html>

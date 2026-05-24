@@ -27,7 +27,7 @@ public class SecurityConfig {
         SecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 
         http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/course-info/**", "/login", "/register", "/verify", "/forgot-password", "/reset-password", "/h2-console/**", "/css/**").permitAll()
                         .anyRequest().authenticated()

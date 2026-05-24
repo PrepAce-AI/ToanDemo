@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,8 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -38,20 +41,23 @@ public class AuthController {
     @PostMapping("/register")
     public String processRegister(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes, Model model) {
         try {
-            // Đoạn code lưu user vào database của bạn ở đây...
-            // ví dụ: userService.register(user);
+            // 1. MÃ HÓA MẬT KHẨU
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
 
-            // NẾU ĐĂNG KÝ THÀNH CÔNG:
-            // 1. Đính kèm thông báo thành công để gửi sang trang Login
+            // 2. THÊM 2 DÒNG NÀY ĐỂ MỞ KHÓA TÀI KHOẢN
+            user.setEnabled(true); // Bật kích hoạt tài khoản để cho phép đăng nhập
+            user.setProvider("LOCAL"); // Đánh dấu là tài khoản đăng ký thường
+
+            // 3. LƯU USER VÀO DATABASE
+            userRepository.save(user);
+
+            // 4. CHUYỂN HƯỚNG SANG TRANG LOGIN
             redirectAttributes.addFlashAttribute("success", "Đăng ký tài khoản thành công! Vui lòng đăng nhập.");
-
-            // 2. Ép trình duyệt chuyển hướng (redirect) sang trang /login
             return "redirect:/login";
 
         } catch (Exception e) {
-            // NẾU CÓ LỖI (Ví dụ: Email đã tồn tại):
-            // Báo lỗi và bắt người dùng ở lại trang đăng ký để nhập lại
-            model.addAttribute("error", "Đăng ký thất bại: Tên email đã được sử dụng!");
+            model.addAttribute("error", "Đăng ký thất bại: Email đã được sử dụng!");
             return "register";
         }
     }
